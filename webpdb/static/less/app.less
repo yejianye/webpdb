@@ -1,0 +1,28 @@
+@import "bootstrap.less";
+
+.rounded-corners (@radius: 5px) {
+	border-radius: @radius;
+	-webkit-border-radius: @radius;
+	-moz-border-radius: @radius;
+}
+#buttons {
+	margin: 5px;
+}
+
+#stacks {
+	float: left;
+	width: 25%;
+	ul {
+		.rounded-corners(3px);
+		margin: 5px;
+		border: 1px solid #ccc;
+	}
+}
+
+#source {
+	float: left;
+	width: 75%;
+	pre {
+		margin: 5px;
+	}
+}
