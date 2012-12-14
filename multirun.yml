@@ -1,0 +1,4 @@
+---
+command: lesswatcher webpdb/static/less webpdb/static/css
+---
+command: coffee -wbc -o webpdb/static/js webpdb/static/coffee

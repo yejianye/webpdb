@@ -1,0 +1,78 @@
+Today:
+- Subclass Flask, the web server should holde an instance of CSessionManager, and through that communicates with the debugger. 
+- An Queue is used to put debugger events and then be consumed by the websocket 
+
+TODOs:
+- Coffeescript Model Prototyping
+    - SourceCodeModel
+    - ConsoleModel
+    - NamespaceModel
+    - ThreadModel (Implement later)
+- Design Web Server APIs
+
+Completed:
+- Read rpdb2 and find implement of the client console, if that's doesn't go well, refer to winpdb source and find related piece .... Done
+- Get a overview picture on how to interact with the rpdb2 server (from winpdb code or rpdb2 client console code) ..... Done
+- Figure out why 'python rpdbclient.py script.py' doesn't work ..... Done
+- Web Socket, how it fits into this application ...... Done
+
+    
+
+References:
+* Rpdb2 should be a good implement reference
+
+Use Case:
+1. same as pdb that you could use 'from webpdb import set_trace; set_trace()' to trigger the debugger
+2. on set_trace(), the program stopped, and display the url of debugger server. The server is usually bound on localhost, and use a random high-port as default port.
+   User could also specify binding address. A message is printed in stdout
+   ""
+   Webpdb has been started, open your web browswer and go to http://localhost:18973 for interactive debugging
+3. layout in web gui, source code, console, locals/globals/exception, threads, stack
+
+Design:
+* Backend and GUI should be separate so I could implement other frontend easily
+* Maybe worth taking a look at websocket for better client performance
+* Need think of a way to set and persist break points and other debugger settings across sessions. (and without modifying debuggee source code)
+* Make code should be on javascript/coffeescript side, web server just a thin-layer to communicate between debugger server and web client
+
+Use Rpdb2 as a backend, the flow should be following:
+Rpdb2 flow is creating a socket server inside debuggee script and then waiting another client to connect to it
+
+The natural flow is creating a web server, and have a POST method to create a connection to rpdb2 server. This flow isn't perfect because it requires you to start another server process separately, an more ideal flow based on rpdb2 is fork the original process, in the child process, we could use exec to create a web server and inside web server initialization, we create a connection to rpdb2 socket server. In the original process, we execute rpdb2.start_embbed_debugger().
+
+Q: when should we stop the web server?
+A: upon exit of debugger
+
+We could make it step two. Step one is creating a web server that should be initialized after the debugger server is started
+
+Rpdb2 source code:
+Main client class: CSessionManager (CSessionManagerInternal)
+use request_* methods to issue commands
+use set_printer method to capture output
+use register_callback to get async events 
+
+rpdb2.CEventStackFrameChange: step into, step over and other control flow command?
+rpdb2.CEventStack: should related to CEventStackFrameChange as well 
+
+WebSocket:
+Just like the name, websocket is very simple, just like a normal socket, the server could use websocket.wait() and websocket.send() to read/write data.
+On client, the javascript code looks like following
+ws = new WebSocket("ws://localhost:5000/api")
+ws.onmessage = function(msg) {
+}
+ws.send()
+
+API Design:
+All the events are going through websocket. Other requests, like issue debug command, expand/collapse local/global vars, still goes to normal web api flow. 
+Basically, the websocket is just used for pushing server events to the client.
+
+/: render root templates
+/events: this routes to websocket, and each events is just a json encoded dict of original rpdb2 CEvent
+/command/%cmd: issue debug command
+/namespace?path=locals()|x|y|z: fetch the detailed data of locals().x.y.z
+/frame/%d: go to frame x. Return (source-file-path, lineno) 
+/source?filename=/home/rye/...: get the content of source file
+
+have session_manager running in a separate thread, when pushing events into a Queue
+and web server keep pull events out of the Queue. One potential problem is that Gevent not works well with python threading module.
+If that's the case, we need fork the process, one doing debugger session and the other serves web request. The debugger process feeds the web server process via a TCP socket.

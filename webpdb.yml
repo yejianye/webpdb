@@ -1,0 +1,7 @@
+project_name: webpdb
+project_root: ~/source_code/webpdb/
+tabs:
+  - editor: vim -S project.vim
+  - ipython: ipython 
+  - shell: #default shell
+  - watcher: multirun

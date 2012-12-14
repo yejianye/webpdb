@@ -1,3 +1,6 @@
-*.pyc
+*.un~
 *.swp
-*.swo
+*.pyc
+webpdb/static/js
+webpdb/static/css
+session.vim
