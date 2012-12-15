@@ -1,18 +1,18 @@
 <!DOCTYPE HTML>
-<html ng-app>
+<html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8">
 		<title>Webpdb</title>
-		<link rel="stylesheet/less" href="/static/less/app.less" type="text/css" charset="utf-8">
+		<link rel="stylesheet" href="/static/css/app.css" type="text/css" charset="utf-8">
 		<link rel="stylesheet" href="/static/css/prettify.css" type="text/css" media="screen" charset="utf-8">
 	</head>
 	<body onload="prettyPrint()">
         <div id='buttons'>
-            <button	class="btn btn-small"><i class="icon-play"></i> Continue</button>
-            <button	class="btn btn-small"><i class="icon-share-alt"></i> Step Over</button>
-            <button	class="btn btn-small"><i class="icon-arrow-down"></i> Step Into</button>
-            <button	class="btn btn-small"><i class="icon-arrow-up"></i> Step Out</button>
-            <button	class="btn btn-small"><i class="icon-stop"></i> Stop</button>
+            <button	id='btn-continue' class="btn btn-small"><i class="icon-play"></i> Continue</button>
+            <button	id='btn-step-over' class="btn btn-small"><i class="icon-share-alt"></i> Step Over</button>
+            <button	id='btn-step-into' class="btn btn-small"><i class="icon-arrow-down"></i> Step Into</button>
+            <button	id='btn-step-out' class="btn btn-small"><i class="icon-arrow-up"></i> Step Out</button>
+            <button	id='btn-stop' class="btn btn-small"><i class="icon-stop"></i> Stop</button>
         </div>
         <div id='stacks'>
             <ul class="nav nav-list">
@@ -30,11 +30,13 @@
         </div>
         <div id='console'>
         </div>
-		<script src="/static/js/less.min.js"></script>
-		<script src="/static/js/prettify.js"></script>
-		<script src="/static/js/jquery.min.js"></script>
-		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/lib/prettify.js"></script>
+		<script src="/static/lib/jquery.min.js"></script>
+		<script src="/static/lib/bootstrap.min.js"></script>
 		<script src="/static/js/app.js"></script>
 		<script src="/static/js/models.js"></script>
+        <script>
+            window.EVENT_EOF = '{{ event_eof }}';
+        </script>
 	</body>
 </html>

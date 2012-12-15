@@ -1,20 +1,34 @@
 Today:
-- Subclass Flask, the web server should holde an instance of CSessionManager, and through that communicates with the debugger. 
-- An Queue is used to put debugger events and then be consumed by the websocket 
+- SourceCode
+    - content
+    - filename
+    - lineno
+    - file content cache
+    - security (only allow to fetch files in current debugging context)
+- SourceCode
+    - Using google prettyprinter to show text
+    - a low-transparent hightlight bar to indicate current position
+    - natural scrolling
+    - pretty scrollbar (auto-hide maybe)
+- jQuery Tree View widget and how does it work
+- Design Namespace model
+
 
 TODOs:
-- Coffeescript Model Prototyping
-    - SourceCodeModel
-    - ConsoleModel
-    - NamespaceModel
-    - ThreadModel (Implement later)
-- Design Web Server APIs
+- Coffeescript Model
+    - Thread
+- Support breakpoints
 
 Completed:
+- Subclass Flask, the web server should holde an instance of CSessionManager, and through that communicates with the debugger. .....Done
+- An Queue is used to put debugger events and then be consumed by the websocket .....Done
 - Read rpdb2 and find implement of the client console, if that's doesn't go well, refer to winpdb source and find related piece .... Done
 - Get a overview picture on how to interact with the rpdb2 server (from winpdb code or rpdb2 client console code) ..... Done
 - Figure out why 'python rpdbclient.py script.py' doesn't work ..... Done
 - Web Socket, how it fits into this application ...... Done
+- WebSocket communicate with webserver to fetch events ... done
+- handle and redispatch events from EventDispatcher .... done
+- Debugger: do_command ...... done
 
     
 

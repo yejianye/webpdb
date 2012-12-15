@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import signal
 import sys
 import time
 import traceback
@@ -53,14 +54,17 @@ class Debugger(Thread):
         sm.register_callback(self.send_event_to_webserver, self.event_types, fSingleUse=False)
 
     def run(self):
-        cmd_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        cmd_server.bind(config.command_socket_addr)
-        cmd_server.listen(16)
+        self.cmd_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.cmd_server.bind(config.command_socket_addr)
+        self.cmd_server.listen(16)
         bufsize = 4096
-        conn, _ = cmd_server.accept()
+        conn, _ = self.cmd_server.accept()
         while True:
             cmd_obj = json.loads(conn.recv(bufsize))
-            self.execute_command(cmd_obj)
+            conn.send(self.execute_command(cmd_obj))
+
+    def shutdown(self):
+        self.cmd_server.close()
 
     def printer(self, msg):
         print '[DEBUGGER] ', msg
@@ -70,8 +74,15 @@ class Debugger(Thread):
         cmd = cmd_obj['cmd']
         if cmd == 'next':
             self.sm.request_next()
+        elif cmd == 'step':
+            self.sm.request_step()
+        elif cmd == 'return':
+            self.sm.request_return()
+        elif cmd == 'go':
+            self.sm.request_go()
         elif cmd == 'stop':
             self.sm.stop_debuggee()
+        return 'success'
 
     def send_event_to_webserver(self, event):
         if not self.event_socket:
@@ -83,7 +94,7 @@ class Debugger(Thread):
         return json.dumps({
             'event_name' : event.__class__.__name__, 
             'event_data' : dict((k, getattr(event, v)) for k,v in attrs.iteritems())
-        })
+        }) + config.event_eof
 
 def start_client(command_line, fAttach, fchdir, pwd, fAllowUnencrypted, fRemote, host):
     if os.fork():
@@ -99,11 +110,15 @@ def start_client(command_line, fAttach, fchdir, pwd, fAllowUnencrypted, fRemote,
         except:
             sm.report_exception(*sys.exc_info())
             traceback.print_exc()
-        try:
-            while True: time.sleep(5.0)
-        except KeyboardInterrupt:
+
+        def shutdown(signum, frame):
+            debugger.shutdown()
             sm.detach()
             sm.shutdown()
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, shutdown)
+        while True: time.sleep(5.0)
     else:
         import webserver
         webserver.main()
