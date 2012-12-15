@@ -1,11 +1,5 @@
 Today:
-- SourceCode
-    - content
-    - filename
-    - lineno
-    - file content cache
-    - security (only allow to fetch files in current debugging context)
-- SourceCode
+- SourceCodeView
     - Using google prettyprinter to show text
     - a low-transparent hightlight bar to indicate current position
     - natural scrolling
@@ -29,6 +23,10 @@ Completed:
 - WebSocket communicate with webserver to fetch events ... done
 - handle and redispatch events from EventDispatcher .... done
 - Debugger: do_command ...... done
+- SourceCode 
+    - content, filename, lineno .... done
+    - file content cache .... done
+    - security (only allow to fetch files in current debugging context) ... done
 
     
 

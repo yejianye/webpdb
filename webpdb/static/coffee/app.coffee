@@ -22,11 +22,11 @@ class EventsDispatcher extends BaseObject
         events = (JSON.parse(e) for e in events)
         console.log('on_message', events)
         @publish(
-            @translate_event_name(e.event_name, e.event_data)
+            @translate_event_name(e.event_name), e.event_data
         ) for e in events
 
     translate_event_name: (name) =>
-        if name in @event_translation_map
+        if name of @event_translation_map
             return @event_translation_map[name]
         else
             return name
@@ -45,6 +45,7 @@ class AppController extends BaseObject
     constructor: ->
         @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events")
         @debugger = new Debugger()
+        @code = new SourceCode(@dispatcher)
         $('#btn-continue').click( => 
             @debugger.continue()
         )

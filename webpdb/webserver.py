@@ -1,8 +1,9 @@
+import os
 import sys
 import json
 import signal
 import traceback
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 import gevent
 from socket import AF_INET, SOCK_STREAM
 import gevent.socket as socket
@@ -10,6 +11,9 @@ from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from gevent.queue import JoinableQueue
 import config
+
+class SourceFileNotAllowed(Exception):
+    pass
 
 class WebServer(Flask):
     def __init__(self, *args, **kwargs):
@@ -26,6 +30,7 @@ class WebServer(Flask):
             'cmd' : cmd,
             'args' : args,
         }))
+        return json.loads(self.cmd_result_queue.get())
 
     def send_commands_to_debugger(self):
         print 'start send_commands_to_debugger'
@@ -62,8 +67,17 @@ def index():
 
 @app.route('/command/<cmd>', methods=['POST'])
 def command(cmd):
-    app.do_command(cmd, request.form.get('args', ''))
+    print app.do_command(cmd, request.form.get('args', ''))
     return ''
+
+@app.route('/source', methods=['GET'])
+def source_code():
+    fname = request.args.get('filename')
+    allowed_files = app.do_command('ls')
+    if fname not in allowed_files:
+        raise SourceFileNotAllowed
+    print os.path.dirname(fname), fname
+    return send_from_directory(os.path.dirname(fname), os.path.basename(fname))
 
 @app.route('/events')
 def events():

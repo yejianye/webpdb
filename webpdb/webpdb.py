@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from pprint import pprint
 import signal
 import sys
 import time
@@ -52,6 +53,7 @@ class Debugger(Thread):
         self.sm = sm
         sm.set_printer(self.printer)
         sm.register_callback(self.send_event_to_webserver, self.event_types, fSingleUse=False)
+        self.files = set()
 
     def run(self):
         self.cmd_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -61,7 +63,7 @@ class Debugger(Thread):
         conn, _ = self.cmd_server.accept()
         while True:
             cmd_obj = json.loads(conn.recv(bufsize))
-            conn.send(self.execute_command(cmd_obj))
+            conn.send(json.dumps(self.execute_command(cmd_obj)))
 
     def shutdown(self):
         self.cmd_server.close()
@@ -71,23 +73,32 @@ class Debugger(Thread):
 
     def execute_command(self, cmd_obj):
         print 'execute_command', cmd_obj
-        cmd = cmd_obj['cmd']
-        if cmd == 'next':
-            self.sm.request_next()
-        elif cmd == 'step':
-            self.sm.request_step()
-        elif cmd == 'return':
-            self.sm.request_return()
-        elif cmd == 'go':
-            self.sm.request_go()
-        elif cmd == 'stop':
-            self.sm.stop_debuggee()
-        return 'success'
+        return getattr(self, 'cmd_%s' % cmd_obj['cmd'])(cmd_obj['args'])
+
+    def cmd_next(self, args):
+        self.sm.request_next()
+
+    def cmd_step(self, args):
+        self.sm.request_step()
+
+    def cmd_return(self, args):
+        self.sm.request_return()
+
+    def cmd_go(self, args):
+        self.sm.request_go()
+
+    def cmd_stop(self, args):
+        self.sm.stop_debuggee()
+
+    def cmd_ls(self, args):
+        return list(self.files)
 
     def send_event_to_webserver(self, event):
         if not self.event_socket:
             self.event_socket = socket.create_connection(config.event_socket_addr)
         self.event_socket.send(self.serialize_event(event))
+        if isinstance(event, rpdb2.CEventStack):
+            [self.files.add(frame[0]) for frame in event.m_stack['stack']]
 
     def serialize_event(self, event):
         attrs = self.event_serial[event.__class__] 

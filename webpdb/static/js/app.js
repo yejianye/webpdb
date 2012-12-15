@@ -2,8 +2,7 @@
 var AppController, BaseObject, Debugger, EventsDispatcher,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 BaseObject = (function() {
 
@@ -61,13 +60,13 @@ EventsDispatcher = (function(_super) {
     _results = [];
     for (_i = 0, _len = events.length; _i < _len; _i++) {
       e = events[_i];
-      _results.push(this.publish(this.translate_event_name(e.event_name, e.event_data)));
+      _results.push(this.publish(this.translate_event_name(e.event_name), e.event_data));
     }
     return _results;
   };
 
   EventsDispatcher.prototype.translate_event_name = function(name) {
-    if (__indexOf.call(this.event_translation_map, name) >= 0) {
+    if (name in this.event_translation_map) {
       return this.event_translation_map[name];
     } else {
       return name;
@@ -137,6 +136,7 @@ AppController = (function(_super) {
     var _this = this;
     this.dispatcher = new EventsDispatcher("ws://" + window.location.host + "/events");
     this["debugger"] = new Debugger();
+    this.code = new SourceCode(this.dispatcher);
     $('#btn-continue').click(function() {
       return _this["debugger"]["continue"]();
     });
