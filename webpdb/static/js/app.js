@@ -29,7 +29,7 @@ EventsDispatcher = (function(_super) {
 
   __extends(EventsDispatcher, _super);
 
-  function EventsDispatcher(url) {
+  function EventsDispatcher(url, eof) {
     this.translate_event_name = __bind(this.translate_event_name, this);
 
     this.on_message = __bind(this.on_message, this);
@@ -40,6 +40,7 @@ EventsDispatcher = (function(_super) {
       CEventNamespace: 'namespace_update'
     };
     this.ws_url = url;
+    this.eof = eof;
   }
 
   EventsDispatcher.prototype.start = function() {
@@ -51,7 +52,7 @@ EventsDispatcher = (function(_super) {
   EventsDispatcher.prototype.on_message = function(msg) {
     var e, events, _i, _len, _results;
     this.pending += msg.data;
-    events = this.pending.split(EVENT_EOF);
+    events = this.pending.split(this.eof);
     this.pending = events.pop();
     events = (function() {
       var _i, _len, _results;
@@ -139,31 +140,38 @@ AppController = (function(_super) {
   __extends(AppController, _super);
 
   function AppController() {
-    var _this = this;
-    this.dispatcher = new EventsDispatcher("ws://" + window.location.host + "/events");
-    this["debugger"] = new Debugger();
-    this.code = new SourceCode(this.dispatcher);
-    this.code_view = new SourceCodeView(this.code);
-    if (debugger_snapshot) {
-      this.code.load(debugger_snapshot);
-    }
-    $('#btn-continue').click(function() {
-      return _this["debugger"]["continue"]();
-    });
-    $('#btn-step-over').click(function() {
-      return _this["debugger"].step_over();
-    });
-    $('#btn-step-into').click(function() {
-      return _this["debugger"].step_into();
-    });
-    $('#btn-step-out').click(function() {
-      return _this["debugger"].step_out();
-    });
-    $('#btn-stop').click(function() {
-      return _this["debugger"].stop();
-    });
-    this.dispatcher.start();
+    this.init = __bind(this.init, this);
+    this.init();
   }
+
+  AppController.prototype.init = function() {
+    var _this = this;
+    return $.get('/init', function(data) {
+      _this.dispatcher = new EventsDispatcher("ws://" + window.location.host + "/events", data.event_eof);
+      _this["debugger"] = new Debugger();
+      _this.code = new SourceCode(_this.dispatcher);
+      _this.code_view = new SourceCodeView(_this.code);
+      if (data.snapshot) {
+        _this.code.load(data.snapshot);
+      }
+      $('#btn-continue').click(function() {
+        return _this["debugger"]["continue"]();
+      });
+      $('#btn-step-over').click(function() {
+        return _this["debugger"].step_over();
+      });
+      $('#btn-step-into').click(function() {
+        return _this["debugger"].step_into();
+      });
+      $('#btn-step-out').click(function() {
+        return _this["debugger"].step_out();
+      });
+      $('#btn-stop').click(function() {
+        return _this["debugger"].stop();
+      });
+      return _this.dispatcher.start();
+    }, 'json');
+  };
 
   return AppController;
 

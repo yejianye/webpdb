@@ -6,12 +6,13 @@ class BaseObject
         $(this).bind(event, handler)
 
 class EventsDispatcher extends BaseObject
-    constructor: (url) ->
+    constructor: (url, eof) ->
         @event_translation_map = {
             CEventStack: 'stack_update',
             CEventNamespace: 'namespace_update',
         }
         @ws_url = url
+        @eof = eof
 
     start: =>
         @pending = ''
@@ -20,7 +21,7 @@ class EventsDispatcher extends BaseObject
 
     on_message: (msg) =>
         @pending += msg.data
-        events = @pending.split(EVENT_EOF)
+        events = @pending.split(@eof)
         @pending = events.pop()
         events = (JSON.parse(e) for e in events)
         console.log('on_message', events)
@@ -46,27 +47,32 @@ class Debugger extends BaseObject
 
 class AppController extends BaseObject
     constructor: ->
-        @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events")
-        @debugger = new Debugger()
-        @code = new SourceCode(@dispatcher)
-        @code_view = new SourceCodeView(@code)
-        if debugger_snapshot
-            @code.load(debugger_snapshot)
-        $('#btn-continue').click( => 
-            @debugger.continue()
-        )
-        $('#btn-step-over').click( =>
-            @debugger.step_over()
-        )
-        $('#btn-step-into').click( =>
-            @debugger.step_into()
-        )
-        $('#btn-step-out').click( =>
-            @debugger.step_out()
-        )
-        $('#btn-stop').click( =>
-            @debugger.stop()
-        )
-        @dispatcher.start()
+        @init()
+
+    init: =>
+        $.get('/init', (data) =>
+            @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events", data.event_eof)
+            @debugger = new Debugger()
+            @code = new SourceCode(@dispatcher)
+            @code_view = new SourceCodeView(@code)
+            if data.snapshot
+                @code.load(data.snapshot)
+            $('#btn-continue').click( => 
+                @debugger.continue()
+            )
+            $('#btn-step-over').click( =>
+                @debugger.step_over()
+            )
+            $('#btn-step-into').click( =>
+                @debugger.step_into()
+            )
+            $('#btn-step-out').click( =>
+                @debugger.step_out()
+            )
+            $('#btn-stop').click( =>
+                @debugger.stop()
+            )
+            @dispatcher.start()
+        , 'json')
 $ ->
     window.app = new AppController()

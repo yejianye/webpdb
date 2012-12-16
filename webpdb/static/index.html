@@ -20,14 +20,9 @@
                 <li></li>
             </ul>
         </div>
-        <div id='source'>
-            <div class='code-highlighter'></div>
-            <pre class="prettyprint linenums language-python"></pre>
-        </div>
-        <div id='variables'>
-        </div>
-        <div id='console'>
-        </div>
+        <div id='source'></div>
+        <div id='variables'></div>
+        <div id='console'></div>
 		<script src="/static/lib/prettify.js"></script>
 		<script src="/static/lib/jquery.min.js"></script>
 		<script src="/static/lib/bootstrap.min.js"></script>
@@ -35,9 +30,9 @@
 		<script src="/static/js/app.js"></script>
 		<script src="/static/js/models.js"></script>
 		<script src="/static/js/views.js"></script>
-        <script>
-            window.EVENT_EOF = '{{ event_eof }}';
-            window.debugger_snapshot = {{ snapshot|tojson|safe }};
+        <script type='text/template' class='code-view'>
+            <div class='code-highlighter'></div>
+            <pre class="prettyprint linenums language-python"><%= content %></pre>
         </script>
 	</body>
 </html>

@@ -3,7 +3,7 @@ import sys
 import json
 import signal
 import traceback
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, jsonify
 import gevent
 import gevent.socket as socket
 from geventwebsocket.handler import WebSocketHandler
@@ -11,6 +11,7 @@ from gevent.pywsgi import WSGIServer
 from gevent.queue import JoinableQueue
 import config
 
+static_root = os.path.join(os.path.dirname(__file__), 'static')
 class SourceFileNotAllowed(Exception):
     pass
 
@@ -62,9 +63,12 @@ app = WebServer(__name__)
 
 @app.route('/', methods=['GET'])
 def index():
-    snapshot = app.do_command('snapshot')
-    return render_template('index.html', 
-        snapshot = snapshot,
+    return send_from_directory(static_root, 'index.html')
+
+@app.route('/init', methods=['GET'])
+def init():
+    return jsonify(
+        snapshot = app.do_command('snapshot'),
         event_eof = config.event_eof,
     )
 

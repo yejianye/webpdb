@@ -34,5 +34,3 @@ class SourceCode extends BaseObject
                 @content = content
                 @publish('content_changed')
             )
-
-        
