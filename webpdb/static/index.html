@@ -14,12 +14,7 @@
             <button	id='btn-step-out' class="btn btn-small"><i class="icon-arrow-up"></i> Step Out</button>
             <button	id='btn-stop' class="btn btn-small"><i class="icon-stop"></i> Stop</button>
         </div>
-        <div id='stacks'>
-            <ul class="nav nav-list">
-                <li class="nav-header">STACK</li>
-                <li></li>
-            </ul>
-        </div>
+        <div id='stack'></div>
         <div id='source'></div>
         <div id='variables'></div>
         <div id='console'></div>
@@ -27,12 +22,40 @@
 		<script src="/static/lib/jquery.min.js"></script>
 		<script src="/static/lib/bootstrap.min.js"></script>
 		<script src="/static/lib/underscore.min.js"></script>
+		<script src="/static/js/util.js"></script>
 		<script src="/static/js/app.js"></script>
 		<script src="/static/js/models.js"></script>
 		<script src="/static/js/views.js"></script>
-        <script type='text/template' class='code-view'>
+        <script type='text/template' class='code-tmpl'>
             <div class='code-highlighter'></div>
             <pre class="prettyprint linenums language-python"><%= content %></pre>
+        </script>
+        <script type='text/template' class='stack-tmpl'>
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <td>STACK</td>
+                    </tr>
+                    <tr>
+                        <td>#</td>
+                        <td>filename</td>
+                        <td>line</td>
+                        <td>function</td>
+                        <td>path</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% _.each(stack, function(frame) {%>
+                    <tr>
+                        <td><%- frame.idx %></td>
+                        <td><%- util.basename(frame.filename) %></td>
+                        <td><%- frame.lineno %></td>
+                        <td><%- frame.function %></td>
+                        <td><%- util.dirname(frame.filename) %></td>
+                    </tr>
+                    <%});%>
+                </tbody>
+            </table>
         </script>
 	</body>
 </html>

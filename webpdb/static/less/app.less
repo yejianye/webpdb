@@ -1,5 +1,17 @@
 @import "bootstrap.less";
 
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    box-sizing: border-box;
+}
+
 .rounded-corners (@radius: 5px) {
 	border-radius: @radius;
 	-webkit-border-radius: @radius;
@@ -10,20 +22,18 @@
 	margin: 5px;
 }
 
-#stacks {
-	float: left;
-	width: 25%;
-	ul {
-		.rounded-corners(3px);
-		margin: 5px;
-		border: 1px solid #ccc;
-	}
+#stack {
+    display: inline-block;
+	width: 30%;
+    table {
+        overflow: hidden;
+    }
 }
 
 #source {
-	float: left;
-	width: 75%;
     position: relative;
+    display: inline-block;
+	width: 70%;
     .code-highlighter {
         position: absolute;
         width: 100%;
@@ -31,6 +41,8 @@
         background-color: rgba(200, 255, 255, 0.2);
         height: 20px;
         left: 0px;
+        padding-left: 5px;
+        padding-right: 5px;
     }
 	pre {
 		margin: 5px;

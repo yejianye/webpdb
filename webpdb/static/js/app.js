@@ -149,10 +149,12 @@ AppController = (function(_super) {
     return $.get('/init', function(data) {
       _this.dispatcher = new EventsDispatcher("ws://" + window.location.host + "/events", data.event_eof);
       _this["debugger"] = new Debugger();
-      _this.code = new SourceCode(_this.dispatcher);
+      _this.stack = new Stack(_this.dispatcher);
+      _this.stack_view = new StackView(_this.stack);
+      _this.code = new SourceCode(_this.stack);
       _this.code_view = new SourceCodeView(_this.code);
       if (data.snapshot) {
-        _this.code.load(data.snapshot);
+        _this.stack.load(data.snapshot);
       }
       $('#btn-continue').click(function() {
         return _this["debugger"]["continue"]();

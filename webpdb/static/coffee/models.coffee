@@ -1,24 +1,55 @@
-class SourceCode extends BaseObject
+class Stack extends BaseObject
     constructor: (event_dispatcher) ->
+        @stacks = {}
+        @frames = {}
+        @current_tid = -1
+        event_dispatcher.subscribe('stack_update', (evt, data) =>
+            @update(data.stack)
+        )
+
+    load: (snapshot) =>
+        @update(snapshot.stack)
+
+    update: (data) =>
+        stack = (@translate_frame(data.stack[i], i) for i in [0..data.stack.length - 1])
+        @frames[data.tid] = stack.length - 1
+        @stacks[data.tid] = stack
+        if data['current tid']
+            @current_tid = data.tid
+        @publish('changed')
+
+    get_stack: (tid) =>
+        return if tid then @stacks[tid] else @stacks[@current_tid]
+
+    get_frame: (frame_idx, tid) =>
+        tid = @current_tid if not tid
+        frame_idx = @frames[tid] if not frame_idx
+        stack = @get_stack(tid)
+        return stack[frame_idx]
+
+    translate_frame: (info, idx) =>
+        return {
+            idx: idx,
+            filename: info[0],
+            lineno: info[1],
+            function: info[2],
+        }
+
+
+class SourceCode extends BaseObject
+    constructor: (stack) ->
+        @stack = stack
         @filename = ''
         @lineno = ''
         @content = ''
         @caches = {}
-        @stack = []
-        event_dispatcher.subscribe('stack_update', (evt, data) =>
-            @set_stack(data.stack.stack)
-        )
+        stack.subscribe('changed', @on_stack_change)
 
-    load: (snapshot) =>
-        @set_stack(snapshot.stack.stack)
-        
-    set_stack: (stack) =>
-        console.log(stack)
-        @stack = stack
-        last_stack = @stack[@stack.length - 1] 
-        @lineno = last_stack[1]
-        if @filename != last_stack[0]
-            @filename = last_stack[0]
+    on_stack_change:  =>
+        current_frame = @stack.get_frame()
+        @lineno = current_frame.lineno
+        if @filename != current_frame.filename
+            @filename = current_frame.filename
             @fetch_file_content()
         else
             @publish('lineno_changed')

@@ -53,10 +53,12 @@ class AppController extends BaseObject
         $.get('/init', (data) =>
             @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events", data.event_eof)
             @debugger = new Debugger()
-            @code = new SourceCode(@dispatcher)
+            @stack = new Stack(@dispatcher)
+            @stack_view = new StackView(@stack)
+            @code = new SourceCode(@stack)
             @code_view = new SourceCodeView(@code)
             if data.snapshot
-                @code.load(data.snapshot)
+                @stack.load(data.snapshot)
             $('#btn-continue').click( => 
                 @debugger.continue()
             )

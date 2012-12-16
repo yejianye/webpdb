@@ -1,11 +1,9 @@
 Today:
-- Implement server-side snapshots (only contains stacks info)
-- On the client-side, fetch the snapshots and init SourceCode models according to the snapshots
 - stack model
     - get(tid) (currently, thread is not supported)
+- stack view
+    - click any stack loads the corresponding source file and point it to that line
 - SourceCodeView
-    - Using google prettyprinter to show text
-    - a low-transparent hightlight bar to indicate current position
     - natural scrolling
     - pretty scrollbar (auto-hide maybe)
 - jQuery Tree View widget and how does it work
@@ -18,6 +16,11 @@ TODOs:
 - Support breakpoints
 
 Completed:
+- Implement server-side snapshots (only contains stacks info) .... done
+- On the client-side, fetch the snapshots and init SourceCode models according to the snapshots .... done
+- SourceCodeView
+    - Using google prettyprinter to show text .... done
+    - a low-transparent hightlight bar to indicate current position .... done
 - Subclass Flask, the web server should holde an instance of CSessionManager, and through that communicates with the debugger. .....Done
 - An Queue is used to put debugger events and then be consumed by the websocket .....Done
 - Read rpdb2 and find implement of the client console, if that's doesn't go well, refer to winpdb source and find related piece .... Done
