@@ -11,9 +11,12 @@ class EventsDispatcher extends BaseObject
             CEventStack: 'stack_update',
             CEventNamespace: 'namespace_update',
         }
-        @websocket = new WebSocket(url)
-        @websocket.onmessage = @on_message
+        @ws_url = url
+
+    start: =>
         @pending = ''
+        @websocket = new WebSocket(@ws_url)
+        @websocket.onmessage = @on_message
 
     on_message: (msg) =>
         @pending += msg.data
@@ -46,6 +49,9 @@ class AppController extends BaseObject
         @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events")
         @debugger = new Debugger()
         @code = new SourceCode(@dispatcher)
+        @code_view = new SourceCodeView(@code)
+        if debugger_snapshot
+            @code.load(debugger_snapshot)
         $('#btn-continue').click( => 
             @debugger.continue()
         )
@@ -61,6 +67,6 @@ class AppController extends BaseObject
         $('#btn-stop').click( =>
             @debugger.stop()
         )
-
+        @dispatcher.start()
 $ ->
     window.app = new AppController()

@@ -1,4 +1,8 @@
 Today:
+- Implement server-side snapshots (only contains stacks info)
+- On the client-side, fetch the snapshots and init SourceCode models according to the snapshots
+- stack model
+    - get(tid) (currently, thread is not supported)
 - SourceCodeView
     - Using google prettyprinter to show text
     - a low-transparent hightlight bar to indicate current position
@@ -88,3 +92,7 @@ Basically, the websocket is just used for pushing server events to the client.
 have session_manager running in a separate thread, when pushing events into a Queue
 and web server keep pull events out of the Queue. One potential problem is that Gevent not works well with python threading module.
 If that's the case, we need fork the process, one doing debugger session and the other serves web request. The debugger process feeds the web server process via a TCP socket.
+
+Snapshots:
+When a web client connects to the server, it should fetch the current states of the debugger, which we call it a 'snapshot'. A snapshot contains:
+    - current stack

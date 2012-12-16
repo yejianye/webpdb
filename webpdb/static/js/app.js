@@ -33,14 +33,20 @@ EventsDispatcher = (function(_super) {
     this.translate_event_name = __bind(this.translate_event_name, this);
 
     this.on_message = __bind(this.on_message, this);
+
+    this.start = __bind(this.start, this);
     this.event_translation_map = {
       CEventStack: 'stack_update',
       CEventNamespace: 'namespace_update'
     };
-    this.websocket = new WebSocket(url);
-    this.websocket.onmessage = this.on_message;
-    this.pending = '';
+    this.ws_url = url;
   }
+
+  EventsDispatcher.prototype.start = function() {
+    this.pending = '';
+    this.websocket = new WebSocket(this.ws_url);
+    return this.websocket.onmessage = this.on_message;
+  };
 
   EventsDispatcher.prototype.on_message = function(msg) {
     var e, events, _i, _len, _results;
@@ -137,6 +143,10 @@ AppController = (function(_super) {
     this.dispatcher = new EventsDispatcher("ws://" + window.location.host + "/events");
     this["debugger"] = new Debugger();
     this.code = new SourceCode(this.dispatcher);
+    this.code_view = new SourceCodeView(this.code);
+    if (debugger_snapshot) {
+      this.code.load(debugger_snapshot);
+    }
     $('#btn-continue').click(function() {
       return _this["debugger"]["continue"]();
     });
@@ -152,6 +162,7 @@ AppController = (function(_super) {
     $('#btn-stop').click(function() {
       return _this["debugger"].stop();
     });
+    this.dispatcher.start();
   }
 
   return AppController;

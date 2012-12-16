@@ -50,6 +50,7 @@ class Debugger(Thread):
         super(Debugger, self).__init__()
         self.daemon = True
         self.event_socket = None
+        self.stack = None
         self.sm = sm
         sm.set_printer(self.printer)
         sm.register_callback(self.send_event_to_webserver, self.event_types, fSingleUse=False)
@@ -57,6 +58,7 @@ class Debugger(Thread):
 
     def run(self):
         self.cmd_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.cmd_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.cmd_server.bind(config.command_socket_addr)
         self.cmd_server.listen(16)
         bufsize = 4096
@@ -93,11 +95,21 @@ class Debugger(Thread):
     def cmd_ls(self, args):
         return list(self.files)
 
+    def cmd_snapshot(self, args):
+        if self.stack:
+            return {
+                'stack' : self.stack
+            }
+        else:
+            return None
+
     def send_event_to_webserver(self, event):
         if not self.event_socket:
             self.event_socket = socket.create_connection(config.event_socket_addr)
+        print 'send event', self.serialize_event(event)
         self.event_socket.send(self.serialize_event(event))
         if isinstance(event, rpdb2.CEventStack):
+            self.stack = event.m_stack
             [self.files.add(frame[0]) for frame in event.m_stack['stack']]
 
     def serialize_event(self, event):
@@ -108,7 +120,8 @@ class Debugger(Thread):
         }) + config.event_eof
 
 def start_client(command_line, fAttach, fchdir, pwd, fAllowUnencrypted, fRemote, host):
-    if os.fork():
+    child_pid = os.fork()
+    if child_pid:
         sm = rpdb2.CSessionManager(pwd, fAllowUnencrypted, fRemote, host)
         debugger = Debugger(sm)
         debugger.start()
@@ -118,18 +131,19 @@ def start_client(command_line, fAttach, fchdir, pwd, fAllowUnencrypted, fRemote,
                 sm.attach(command_line)
             elif command_line != '':
                 sm.launch(fchdir, command_line)
+            while True: time.sleep(5.0)
+        except KeyboardInterrupt:
+            pass
         except:
             sm.report_exception(*sys.exc_info())
             traceback.print_exc()
-
-        def shutdown(signum, frame):
+        finally:
             debugger.shutdown()
             sm.detach()
             sm.shutdown()
-            sys.exit(0)
-
-        signal.signal(signal.SIGINT, shutdown)
-        while True: time.sleep(5.0)
+            os.wait() # wait the child process, i.e, webserver to gracefully shutdown
+            print 'Debugger Shutdown gracefully'
+            
     else:
         import webserver
         webserver.main()

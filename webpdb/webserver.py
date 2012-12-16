@@ -5,7 +5,6 @@ import signal
 import traceback
 from flask import Flask, render_template, request, send_from_directory
 import gevent
-from socket import AF_INET, SOCK_STREAM
 import gevent.socket as socket
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
@@ -19,6 +18,7 @@ class WebServer(Flask):
     def __init__(self, *args, **kwargs):
         super(WebServer, self).__init__(*args, **kwargs)
         print 'Webserver started'
+        self.debug = True
         self.cmd_queue = JoinableQueue()
         self.cmd_result_queue = JoinableQueue()
         self.event_queue = JoinableQueue()
@@ -47,7 +47,8 @@ class WebServer(Flask):
         
     def receive_events_from_debugger(self):
         print 'start receive_events_from_debugger'
-        self.event_server = socket.socket(AF_INET, SOCK_STREAM)
+        self.event_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.event_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.event_server.bind(config.event_socket_addr)
         self.event_server.listen(16)
         conn, _ = self.event_server.accept()
@@ -61,7 +62,9 @@ app = WebServer(__name__)
 
 @app.route('/', methods=['GET'])
 def index():
+    snapshot = app.do_command('snapshot')
     return render_template('index.html', 
+        snapshot = snapshot,
         event_eof = config.event_eof,
     )
 
@@ -88,11 +91,13 @@ def events():
     return  
 
 def main():
-    def shutdown(signum, frame):
-        print 'Webserver shutdown' 
-        app.shutdown()
-        sys.exit(0)
-    signal.signal(signal.SIGINT, shutdown)
     http_server = WSGIServer(config.web_addr, app, handler_class=WebSocketHandler)
-    http_server.serve_forever()
+    try:
+        http_server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        app.shutdown()
+        print 'Webserver Shutdown gracefully'
+
 
