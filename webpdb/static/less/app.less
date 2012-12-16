@@ -26,13 +26,32 @@ table, caption, tbody, tfoot, thead, tr, th, td {
     height: 500px;
     border: 1px solid #aaa;
     overflow: hidden;
+    .section-header {
+        font-weight: bold;
+        background-color: #ccc;
+        padding-left: 10px;
+        width: 100%;
+    }
     #stack {
-        table {
-            font-size: 0.8em;
+        font-size: 0.8em;
+        ul {
+            margin-left: 0px;
+            margin-right: 0px;
         }
-        thead {
-            font-weight: bold;
+        li.current-frame {
+            background-color: #ECECF0;
         }
+        li {
+            padding-left: 5px;
+            width: 100%;
+            span.filename {
+                float: right;
+                padding-right: 5px;
+            }
+        }
+    }
+    .right-pane {
+        margin-left: -5px;
     }
     #source {
         .code-highlighter {
@@ -58,7 +77,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 
 .vsplitbar{
     width: 5px;
-    border-right: 1px solid #aaa;
+    border-left: 1px solid #aaa;
 }
 
 .hsplitbar{

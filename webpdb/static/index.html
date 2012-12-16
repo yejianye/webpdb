@@ -38,29 +38,21 @@
             <pre class="prettyprint linenums language-python"><%= content %></pre>
         </script>
         <script type='text/template' class='stack-tmpl'>
-            <table class='table table-condensed'>
-                <thead>
-                    <tr>
-                        <td>STACK</td>
-                    </tr>
-                    <tr>
-                        <td>filename</td>
-                        <td>line</td>
-                        <td>function</td>
-                        <td>path</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% _.each(stack, function(frame) {%>
-                    <tr>
-                        <td><%- util.basename(frame.filename) %></td>
-                        <td><%- frame.lineno %></td>
-                        <td><%- frame.function %></td>
-                        <td><%- util.dirname(frame.filename) %></td>
-                    </tr>
-                    <%});%>
-                </tbody>
-            </table>
+            <div class='section-header'>
+                STACK
+            </div>
+            <ul>
+                <% _.each(stack, function(frame) {%>
+                <% if (frame.idx == frame_idx) {%>
+                <li class='current-frame'>
+                <% } else { %>
+                <li>
+                <% } %>
+                    <span class='function'><%- frame.function %></span>
+                    <span class='filename'><%- util.basename(frame.filename) + ':' + frame.lineno %>
+                </li>
+                <%});%>
+            </ul>
         </script>
 	</body>
 </html>
