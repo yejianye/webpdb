@@ -6,7 +6,9 @@ class StackView
         model.subscribe('changed', @update)
 
     update: =>
-        context = {stack: @model.get_stack(), frame_idx: @model.get_frame().idx}
+        stack = @model.get_stack()
+        stack = (stack[i] for i in [stack.length - 1 .. 0])
+        context = {stack: stack, frame_idx: @model.get_frame().idx}
         console.log('StackView:update', context)
         @el.html(@tmpl(context))
 
@@ -27,6 +29,6 @@ class SourceCodeView
 
     update_lineno: =>
         console.log('update_lineno:', @model.lineno)
-        $('#source .code-highlighter').css('top', "#{@model.lineno * 20 - 7}px")
+        $('#source .code-highlighter').css('top', "#{@model.lineno * 20 - 10}px")
 
 

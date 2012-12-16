@@ -4,24 +4,31 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8">
 		<title>Webpdb</title>
 		<link rel="stylesheet" href="/static/css/app.css" type="text/css" charset="utf-8">
-		<link rel="stylesheet" href="/static/css/prettify.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="/static/lib/css/prettify.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="/static/lib/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8">
 	</head>
 	<body>
         <div id='buttons'>
             <button	id='btn-continue' class="btn btn-small"><i class="icon-play"></i> Continue</button>
-            <button	id='btn-step-over' class="btn btn-small"><i class="icon-share-alt"></i> Step Over</button>
+            <button	id='btn-step-over' class="btn btn-small"><i class="icon-arrow-right"></i> Step Over</button>
             <button	id='btn-step-into' class="btn btn-small"><i class="icon-arrow-down"></i> Step Into</button>
             <button	id='btn-step-out' class="btn btn-small"><i class="icon-arrow-up"></i> Step Out</button>
             <button	id='btn-stop' class="btn btn-small"><i class="icon-stop"></i> Stop</button>
         </div>
-        <div id='stack'></div>
-        <div id='source'></div>
-        <div id='variables'></div>
-        <div id='console'></div>
-		<script src="/static/lib/prettify.js"></script>
-		<script src="/static/lib/jquery.min.js"></script>
-		<script src="/static/lib/bootstrap.min.js"></script>
-		<script src="/static/lib/underscore.min.js"></script>
+        <div class='pane-container'>
+            <div class='left-pane'>
+                <div id='stack'></div>
+            </div>
+            <div class='right-pane'>
+                <div id='source'></div>
+                <div id='console'></div>
+            </div>
+        </div>
+		<script src="/static/lib/js/prettify.js"></script>
+		<script src="/static/lib/js/jquery.min.js"></script>
+		<script src="/static/lib/js/bootstrap.min.js"></script>
+		<script src="/static/lib/js/underscore.min.js"></script>
+		<script src="/static/lib/js/splitter.js"></script>
 		<script src="/static/js/util.js"></script>
 		<script src="/static/js/app.js"></script>
 		<script src="/static/js/models.js"></script>
@@ -31,13 +38,12 @@
             <pre class="prettyprint linenums language-python"><%= content %></pre>
         </script>
         <script type='text/template' class='stack-tmpl'>
-            <table class='table'>
+            <table class='table table-condensed'>
                 <thead>
                     <tr>
                         <td>STACK</td>
                     </tr>
                     <tr>
-                        <td>#</td>
                         <td>filename</td>
                         <td>line</td>
                         <td>function</td>
@@ -47,7 +53,6 @@
                 <tbody>
                     <% _.each(stack, function(frame) {%>
                     <tr>
-                        <td><%- frame.idx %></td>
                         <td><%- util.basename(frame.filename) %></td>
                         <td><%- frame.lineno %></td>
                         <td><%- frame.function %></td>

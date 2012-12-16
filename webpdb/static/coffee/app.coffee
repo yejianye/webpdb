@@ -57,6 +57,15 @@ class AppController extends BaseObject
             @stack_view = new StackView(@stack)
             @code = new SourceCode(@stack)
             @code_view = new SourceCodeView(@code)
+            $('.pane-container').splitter({
+                splitVertical: true,
+                resizeTo: window,
+                sizeLeft: 400
+            });
+            $('.right-pane').splitter({
+                splitHorizontal: true,
+                sizeBottom: 100
+            })
             if data.snapshot
                 @stack.load(data.snapshot)
             $('#btn-continue').click( => 

@@ -1,5 +1,3 @@
-@import "bootstrap.less";
-
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -19,32 +17,51 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 }
 
 #buttons {
-	margin: 5px;
+	padding: 7px;
+    width: 100%;
+    background-color: #eee;
 }
 
-#stack {
-    display: inline-block;
-	width: 30%;
-    table {
-        overflow: hidden;
+.pane-container {
+    height: 500px;
+    border: 1px solid #aaa;
+    overflow: hidden;
+    #stack {
+        table {
+            font-size: 0.8em;
+        }
+        thead {
+            font-weight: bold;
+        }
+    }
+    #source {
+        .code-highlighter {
+            position: absolute;
+            width: 100%;
+            border: 1px solid #888;
+            background-color: rgba(200, 255, 255, 0.2);
+            height: 20px;
+            left: 0px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+        pre {
+            .rounded-corners(0px);
+            height: 600px;
+            overflow: scroll;
+        }
+    }
+    #console {
+        background: white;
     }
 }
 
-#source {
-    position: relative;
-    display: inline-block;
-	width: 70%;
-    .code-highlighter {
-        position: absolute;
-        width: 100%;
-        border: 1px solid #888;
-        background-color: rgba(200, 255, 255, 0.2);
-        height: 20px;
-        left: 0px;
-        padding-left: 5px;
-        padding-right: 5px;
-    }
-	pre {
-		margin: 5px;
-	}
+.vsplitbar{
+    width: 5px;
+    border-right: 1px solid #aaa;
+}
+
+.hsplitbar{
+    height: 5px;
+    border-bottom: 1px solid #aaa;
 }

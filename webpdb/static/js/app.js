@@ -153,6 +153,15 @@ AppController = (function(_super) {
       _this.stack_view = new StackView(_this.stack);
       _this.code = new SourceCode(_this.stack);
       _this.code_view = new SourceCodeView(_this.code);
+      $('.pane-container').splitter({
+        splitVertical: true,
+        resizeTo: window,
+        sizeLeft: 400
+      });
+      $('.right-pane').splitter({
+        splitHorizontal: true,
+        sizeBottom: 100
+      });
       if (data.snapshot) {
         _this.stack.load(data.snapshot);
       }
