@@ -45,6 +45,26 @@ class Debugger extends BaseObject
     step_out: => @do_command('return')
     stop: => @do_command('stop')
 
+class PanelController extends BaseObject
+    constructor: ->
+        @pane_container = $('.pane-container')
+        @topbar_height = $('.topbar').height()
+        @on_resize()
+        @pane_container.splitter({
+            splitVertical: true,
+            resizeTo: window,
+            sizeLeft: 400
+        })
+        $('.right-pane').splitter({
+            splitHorizontal: true,
+            sizeBottom: 100
+        })
+        $(window).resize(@on_resize)
+
+    on_resize: =>
+        win_height = $(window).height()
+        @pane_container.height(win_height - @topbar_height)
+
 class AppController extends BaseObject
     constructor: ->
         @init()
@@ -53,19 +73,11 @@ class AppController extends BaseObject
         $.get('/init', (data) =>
             @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events", data.event_eof)
             @debugger = new Debugger()
+            @panel_controller = new PanelController()
             @stack = new Stack(@dispatcher)
             @stack_view = new StackView(@stack)
             @code = new SourceCode(@stack)
             @code_view = new SourceCodeView(@code)
-            $('.pane-container').splitter({
-                splitVertical: true,
-                resizeTo: window,
-                sizeLeft: 400
-            });
-            $('.right-pane').splitter({
-                splitHorizontal: true,
-                sizeBottom: 100
-            })
             if data.snapshot
                 @stack.load(data.snapshot)
             $('#btn-continue').click( => 

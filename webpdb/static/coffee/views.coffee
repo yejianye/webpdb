@@ -17,19 +17,28 @@ class SourceCodeView
     constructor: (model) ->
         @model = model
         @el = $('#source')
+        @pane_height = @el.height()
         @tmpl = _.template($('script.code-tmpl').html())
         model.subscribe('content_changed', @update_content)
         model.subscribe('lineno_changed', @update_lineno)
 
     update_content: =>
         console.log('update_content', @model.content)
-        console.log(@tmpl({content: @model.content}))
         @el.html(@tmpl({content: @model.content}))
         prettyPrint()
+        @code_height = @el.find('pre.prettyprint').height()
         @update_lineno()
 
     update_lineno: =>
         console.log('update_lineno:', @model.lineno)
-        $('#source .code-highlighter').css('top', "#{@model.lineno * 20 - 10}px")
-
-
+        line_el = @el.find("ol li:nth-child(#{@model.lineno})")
+        offset = @el.scrollTop() + line_el.position().top
+        console.log('offset', offset)
+        $('#source .code-highlighter').css('top', "#{offset}px")
+        if offset - @pane_height/2 < 0
+            scroll = 0
+        else if offset + @pane_height/2 > @code_height
+            scroll = @code_height - @pane_height/2
+        else
+            scroll = offset - @pane_height/2
+        @el.scrollTop(scroll)

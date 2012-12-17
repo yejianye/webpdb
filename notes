@@ -1,10 +1,10 @@
 Today:
-- experiment with basic 3-panel layout (based on jquery-ui resizable).....done
 - accordion on the left panel
 - code panel
     - title bar (full-path of current file)
-    - pretty-print code
-    - the current line is hightlighted and has a arrow on the left
+    - pretty-print code ...... done
+    - natural scrolling ...... done
+    - the current line is hightlighted and has a arrow on the left ...... done
 - stacks 
     - frame format: function name on the left, filename and lineno on the right
     - ordered by frame index, and most inner frame comes first
@@ -13,9 +13,6 @@ Today:
 TODOs:
 - stack view
     - click any stack loads the corresponding source file and point it to that line
-- SourceCodeView
-    - natural scrolling
-    - pretty scrollbar (auto-hide maybe)
 - jQuery Tree View widget and how does it work
 - Design Namespace model
 
@@ -24,6 +21,7 @@ TODOs:
 - Support breakpoints
 
 Completed:
+- experiment with basic 3-panel layout (based on jquery-ui resizable).....done
 - stack model
     - get(tid) (currently, thread is not supported) ..... done
 - Implement server-side snapshots (only contains stacks info) .... done

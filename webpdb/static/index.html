@@ -3,12 +3,12 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8">
 		<title>Webpdb</title>
-		<link rel="stylesheet" href="/static/css/app.css" type="text/css" charset="utf-8">
 		<link rel="stylesheet" href="/static/lib/css/prettify.css" type="text/css" media="screen" charset="utf-8">
 		<link rel="stylesheet" href="/static/lib/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8">
+		<link rel="stylesheet" href="/static/css/app.css" type="text/css" charset="utf-8">
 	</head>
 	<body>
-        <div id='buttons'>
+        <div class='topbar'>
             <button	id='btn-continue' class="btn btn-small"><i class="icon-play"></i> Continue</button>
             <button	id='btn-step-over' class="btn btn-small"><i class="icon-arrow-right"></i> Step Over</button>
             <button	id='btn-step-into' class="btn btn-small"><i class="icon-arrow-down"></i> Step Into</button>
@@ -34,7 +34,9 @@
 		<script src="/static/js/models.js"></script>
 		<script src="/static/js/views.js"></script>
         <script type='text/template' class='code-tmpl'>
-            <div class='code-highlighter'></div>
+            <div class='code-highlighter'>
+                <i class='icon-chevron-right'></i>
+            </div>
             <pre class="prettyprint linenums language-python"><%= content %></pre>
         </script>
         <script type='text/template' class='stack-tmpl'>

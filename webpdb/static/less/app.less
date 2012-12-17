@@ -10,22 +10,34 @@ table, caption, tbody, tfoot, thead, tr, th, td {
     box-sizing: border-box;
 }
 
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+pre.prettyprint {
+    margin-bottom: 0px;
+    white-space: pre;
+}
+
 .rounded-corners (@radius: 5px) {
 	border-radius: @radius;
 	-webkit-border-radius: @radius;
 	-moz-border-radius: @radius;
 }
 
-#buttons {
+.topbar {
 	padding: 7px;
     width: 100%;
     background-color: #eee;
 }
 
 .pane-container {
-    height: 500px;
+    height: 100%;
     border: 1px solid #aaa;
     overflow: hidden;
+    min-width: 800px;
+    min-height: 500px;
     .section-header {
         font-weight: bold;
         background-color: #ccc;
@@ -34,6 +46,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
     }
     #stack {
         font-size: 0.8em;
+        min-width: 200px;
         ul {
             margin-left: 0px;
             margin-right: 0px;
@@ -54,23 +67,30 @@ table, caption, tbody, tfoot, thead, tr, th, td {
         margin-left: -5px;
     }
     #source {
+        min-width: 400px;
+        min-height: 200px;
+        overflow: scroll;
         .code-highlighter {
             position: absolute;
             width: 100%;
             border: 1px solid #888;
-            background-color: rgba(200, 255, 255, 0.2);
+            background-color: rgba(200, 210, 83, 0.2);
             height: 20px;
             left: 0px;
             padding-left: 5px;
             padding-right: 5px;
+            i.icon-chevron-right {
+                margin-left: 20px;
+            }
         }
         pre {
             .rounded-corners(0px);
-            height: 600px;
-            overflow: scroll;
+            min-height: 1000px;
         }
     }
     #console {
+        min-width: 400px;
+        min-height: 50px;
         background: white;
     }
 }
@@ -82,5 +102,5 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 
 .hsplitbar{
     height: 5px;
-    border-bottom: 1px solid #aaa;
+    border-top: 1px solid #aaa;
 }
