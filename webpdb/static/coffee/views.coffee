@@ -2,8 +2,18 @@ class StackView
     constructor: (model) ->
         @model = model
         @el = $('#stack')
+        #@el.find('.section-header').collapse({toggle:true})
+        @el.on('show', => @toggle(true))
+        @el.on('hidden', => @toggle(false))
         @tmpl = _.template($('script.stack-tmpl').html())
         model.subscribe('changed', @update)
+
+    toggle: (show) =>
+        header_icon = @el.find('.section-header i')
+        if show 
+            header_icon.removeClass('icon-circle-arrow-right').addClass('icon-circle-arrow-down')
+        else
+            header_icon.removeClass('icon-circle-arrow-down').addClass('icon-circle-arrow-right')
 
     update: =>
         stack = @model.get_stack()

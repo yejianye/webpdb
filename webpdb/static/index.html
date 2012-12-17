@@ -17,7 +17,7 @@
         </div>
         <div class='pane-container'>
             <div class='left-pane'>
-                <div id='stack'></div>
+                <div id='stack' ></div>
             </div>
             <div class='right-pane'>
                 <div id='source'></div>
@@ -40,10 +40,11 @@
             <pre class="prettyprint linenums language-python"><%= content %></pre>
         </script>
         <script type='text/template' class='stack-tmpl'>
-            <div class='section-header'>
-                STACK
+            <div class='section-header' data-toggle="collapse" data-target="#stack-list">
+                <i class='icon-circle-arrow-down'></i>
+                <span>STACK</span>
             </div>
-            <ul>
+            <ul id='stack-list' class='in collapse'>
                 <% _.each(stack, function(frame) {%>
                 <% if (frame.idx == frame_idx) {%>
                 <li class='current-frame'>
