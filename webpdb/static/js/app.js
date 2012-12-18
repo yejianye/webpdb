@@ -14,6 +14,7 @@ BaseObject = (function() {
   }
 
   BaseObject.prototype.publish = function(event, data) {
+    console.log('publish', event, data);
     return $(this).trigger(event, data);
   };
 
@@ -185,6 +186,7 @@ AppController = (function(_super) {
       _this.stack_view = new StackView(_this.stack);
       _this.code = new SourceCode(_this.stack);
       _this.code_view = new SourceCodeView(_this.code);
+      _this.locals = new Namespace(_this.dispatcher, 'locals', 'locals()');
       if (data.snapshot) {
         _this.stack.load(data.snapshot);
       }

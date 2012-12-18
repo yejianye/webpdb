@@ -12,6 +12,7 @@ from threading import Thread
 import config
 
 class Debugger(Thread):
+    namespace_filter_level = 2
     event_types = {
         rpdb2.CEventState: {},
         rpdb2.CEventStackFrameChange: {},
@@ -102,6 +103,11 @@ class Debugger(Thread):
             }
         else:
             return None
+
+    def cmd_expr(self, args):
+        result = self.sm.get_namespace([(args['expr'], args['expand'])], self.namespace_filter_level, args['limit'])
+        pprint(result)
+        return result[0]
 
     def send_event_to_webserver(self, event):
         if not self.event_socket:

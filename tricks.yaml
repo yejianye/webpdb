@@ -1,0 +1,11 @@
+tricks:
+- watchdog_tricks.compiler.CoffeeScriptTrick:
+    src_dir: 'webpdb/static/coffee'
+    dest_dir: 'webpdb/static/js'
+    compile_opts: '-b'
+- watchdog_tricks.compiler.LessTrick:
+    src_dir: 'webpdb/static/less'
+    dest_dir: 'webpdb/static/css'
+- watchdog_tricks.compiler.CtagsTrick:
+    filetypes: ['py','coffee']
+    rebuild: true

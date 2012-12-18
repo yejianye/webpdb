@@ -34,10 +34,15 @@
 		<script src="/static/js/models.js"></script>
 		<script src="/static/js/views.js"></script>
         <script type='text/template' class='code-tmpl'>
-            <div class='code-highlighter'>
-                <i class='icon-chevron-right'></i>
+            <div class='title'>
+                <%- filename %>
             </div>
-            <pre class="prettyprint linenums language-python"><%= content %></pre>
+            <div class='content'>
+                <div class='code-highlighter'>
+                    <i class='icon-chevron-right'></i>
+                </div>
+                <pre class="prettyprint linenums language-python"><%= content %></pre>
+            </div>
         </script>
         <script type='text/template' class='stack-tmpl'>
             <div class='section-header' data-toggle="collapse" data-target="#stack-list">

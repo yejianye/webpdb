@@ -86,6 +86,20 @@ def source_code():
     print os.path.dirname(fname), fname
     return send_from_directory(os.path.dirname(fname), os.path.basename(fname))
 
+@app.route('/expr', methods=['GET'])
+def expr():
+    expr = request.args.get('expr')
+    expand = request.args.get('expand')
+    limit = request.args.get('limit')
+    return json.dumps(app.do_command('expr', {'expr': expr, 'expand': expand, 'limit': limit}))
+
+@app.route('/vartest')
+def vartest():
+    result = app.do_command('expr', {'expr': 'locals()', 'expand': True, 'limit': 10})
+    result = app.do_command('expr', {'expr': "(locals()['__builtins__'])", 'expand': False, 'limit': 10})
+    result = app.do_command('expr', {'expr': "(locals()['__builtins__'])", 'expand': True, 'limit': 10})
+    return ''
+
 @app.route('/events')
 def events():
     ws = request.environ['wsgi.websocket']
@@ -100,6 +114,8 @@ def main():
         http_server.serve_forever()
     except KeyboardInterrupt:
         pass
+    except:
+        traceback.print_exc()
     finally:
         app.shutdown()
         print 'Webserver Shutdown gracefully'

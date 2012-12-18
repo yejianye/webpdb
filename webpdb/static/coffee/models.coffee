@@ -65,3 +65,70 @@ class SourceCode extends BaseObject
                 @content = content
                 @publish('content_changed')
             )
+
+class Variable extends BaseObject
+    constructor: (data) ->
+        @set_data(data)
+        @expand = false
+        @children = null
+        @name_map = {}
+        @limit = 10
+
+    refresh:  =>
+        $.get('/expr', {expr: @expr, expand: @expand, limit: @limit}, (data) =>
+            if not @is_equal(data)
+                @set_data(data)
+                @publish('changed')
+            if @expand
+                @merge_children(data.subnodes)
+            console.log('refresh', @)
+        , 'json')
+
+    is_equal: (data) =>
+        return @repr == data.repr and @type == data.type and @child_count == data.n_subnodes
+
+    set_data: (data) =>
+        @name = data.name
+        @expr = data.expr
+        @repr = data.repr
+        @type = data.type
+        @child_count = data.n_subnodes
+
+    merge_children: (children_data) =>
+        @children = [] if not @children
+        @name_map = {} if not @name_map
+        name_set = {}
+        for data in children_data
+            name_set[data.name] = true
+            if data.name of @name_map
+                child = @name_map[data.name]
+                if not child.is_equal(data)
+                    child.set_data(data)
+                    child.publish('changed')
+            else
+                child = new Variable(data)
+                @name_map[data.name] = child
+                @children.push(child)
+                @publish('child_added', child)
+            
+        removed = (name for name, child in @name_map when name not of name_set)
+        if removed.length > 0
+            for name in removed
+                @publish('child_removed', @name_map[name])
+                delete @name_map[name]
+            @children = (child for child in @children when child.name not in removed)
+
+    load_children: =>
+        @expand = true 
+        @refresh()
+
+    unload_children: =>
+        @expand = false
+        @children = null
+
+class Namespace extends Variable
+    constructor: (event_dispatcher, name, expr) ->
+        super({expr: expr, name: name})
+        @limit = 256
+        @expand = true
+        event_dispatcher.subscribe('namespace_update', @refresh)

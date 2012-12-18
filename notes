@@ -1,14 +1,5 @@
 Today:
-- accordion on the left panel
-- code panel
-    - title bar (full-path of current file)
-    - pretty-print code ...... done
-    - natural scrolling ...... done
-    - the current line is hightlighted and has a arrow on the left ...... done
-- stacks 
-    - frame format: function name on the left, filename and lineno on the right
-    - ordered by frame index, and most inner frame comes first
-    - the current frame is highlighted
+- Reading winpdb namespace related code and implement similar logic in webpdb
 
 TODOs:
 - stack view
@@ -21,6 +12,16 @@ TODOs:
 - Support breakpoints
 
 Completed:
+- accordion on the left panel .... done
+- code panel
+    - title bar (full-path of current file) .... done
+    - pretty-print code ...... done
+    - natural scrolling ...... done
+    - the current line is hightlighted and has a arrow on the left ...... done
+- stacks 
+    - frame format: function name on the left, filename and lineno on the right .... done
+    - ordered by frame index, and most inner frame comes first ... done
+    - the current frame is highlighted ... done
 - experiment with basic 3-panel layout (based on jquery-ui resizable).....done
 - stack model
     - get(tid) (currently, thread is not supported) ..... done
@@ -107,3 +108,19 @@ If that's the case, we need fork the process, one doing debugger session and the
 Snapshots:
 When a web client connects to the server, it should fetch the current states of the debugger, which we call it a 'snapshot'. A snapshot contains:
     - current stack
+
+Variables
+Model: 
+    - has_child
+    - children
+    - refresh()
+    - publish: child_added
+    - publish: child_removed
+    - publish: changed
+View:
+    - expandable
+    - on_show
+    - publish: child_added
+    - publish: child_removed
+    - publish: changed
+

@@ -1,5 +1,6 @@
 class BaseObject
     publish: (event, data) =>
+        console.log('publish', event, data)
         $(this).trigger(event, data)
 
     subscribe: (event, handler) =>
@@ -78,6 +79,7 @@ class AppController extends BaseObject
             @stack_view = new StackView(@stack)
             @code = new SourceCode(@stack)
             @code_view = new SourceCodeView(@code)
+            @locals = new Namespace(@dispatcher, 'locals', 'locals()')
             if data.snapshot
                 @stack.load(data.snapshot)
             $('#btn-continue').click( => 
