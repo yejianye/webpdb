@@ -184,11 +184,17 @@ AppController = (function(_super) {
       _this.panel_controller = new PanelController();
       _this.stack = new Stack(_this.dispatcher);
       _this.stack_view = new StackView(_this.stack);
+      _this.locals = new Namespace(_this.dispatcher, 'locals', 'locals()');
+      _this.globals = new Namespace(_this.dispatcher, 'globals', 'globals()');
+      _this.locals_view = new NamespaceView(_this.locals, $('#locals'));
+      _this.globals_view = new NamespaceView(_this.globals, $('#globals'));
       _this.code = new SourceCode(_this.stack);
       _this.code_view = new SourceCodeView(_this.code);
-      _this.locals = new Namespace(_this.dispatcher, 'locals', 'locals()');
       if (data.snapshot) {
+        console.log('snapshot', data.snapshot);
         _this.stack.load(data.snapshot);
+        _this.locals.load(data.snapshot);
+        _this.globals.load(data.snapshot);
       }
       $('#btn-continue').click(function() {
         return _this["debugger"]["continue"]();

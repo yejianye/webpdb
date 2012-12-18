@@ -17,7 +17,21 @@
         </div>
         <div class='pane-container'>
             <div class='left-pane'>
-                <div id='stack' ></div>
+                <div id='stack'></div>
+                <div id='locals'>                    
+                    <div class='section-header' data-toggle="collapse" data-target="#locals-list">
+                        <i class='icon-circle-arrow-down'></i>
+                        <span>LOCALS</span>
+                    </div>
+                    <ul id='locals-list' class='variable-list in collapse'></ul>
+                </div>
+                <div id='globals' >                    
+                    <div class='section-header' data-toggle="collapse" data-target="#globals-list">
+                        <i class='icon-circle-arrow-down'></i>
+                        <span>GLOBALS</span>
+                    </div>
+                    <ul id='globals-list' class='variable-list in collapse'></ul>
+                </div>
             </div>
             <div class='right-pane'>
                 <div id='source'></div>
@@ -61,6 +75,16 @@
                 </li>
                 <%});%>
             </ul>
+        </script>
+        <script type='text/template' class='variable-tmpl'>
+            <i class='icon-expand'></i> 
+            <span class='var-name'><%- variable.name %></span>
+            <% if (variable.value() === null) {%>
+                <span class='var-type'>(<%- variable.type %>)</span>
+            <% } else { %>
+            = <span class='var-type'>(<%- variable.type %>)</span>
+            <span class='var-value'><%- variable.value() %></span>
+            <% } %>
         </script>
 	</body>
 </html>

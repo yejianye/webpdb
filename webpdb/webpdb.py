@@ -99,13 +99,15 @@ class Debugger(Thread):
     def cmd_snapshot(self, args):
         if self.stack:
             return {
-                'stack' : self.stack
+                'stack' : self.stack,
+                'locals' : self.cmd_expr({'expr': 'locals()', 'expand': True}),
+                'globals' : self.cmd_expr({'expr': 'globals()', 'expand': True}),
             }
         else:
             return None
 
     def cmd_expr(self, args):
-        result = self.sm.get_namespace([(args['expr'], args['expand'])], self.namespace_filter_level, args['limit'])
+        result = self.sm.get_namespace([(args['expr'], args['expand'])], self.namespace_filter_level, args.get('limit', 128))
         pprint(result)
         return result[0]
 

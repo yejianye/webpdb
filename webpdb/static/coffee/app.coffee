@@ -77,11 +77,17 @@ class AppController extends BaseObject
             @panel_controller = new PanelController()
             @stack = new Stack(@dispatcher)
             @stack_view = new StackView(@stack)
+            @locals = new Namespace(@dispatcher, 'locals', 'locals()')
+            @globals = new Namespace(@dispatcher, 'globals', 'globals()')
+            @locals_view = new NamespaceView(@locals, $('#locals'))
+            @globals_view = new NamespaceView(@globals, $('#globals'))
             @code = new SourceCode(@stack)
             @code_view = new SourceCodeView(@code)
-            @locals = new Namespace(@dispatcher, 'locals', 'locals()')
             if data.snapshot
+                console.log('snapshot', data.snapshot)
                 @stack.load(data.snapshot)
+                @locals.load(data.snapshot)
+                @globals.load(data.snapshot)
             $('#btn-continue').click( => 
                 @debugger.continue()
             )

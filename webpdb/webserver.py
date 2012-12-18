@@ -89,7 +89,7 @@ def source_code():
 @app.route('/expr', methods=['GET'])
 def expr():
     expr = request.args.get('expr')
-    expand = request.args.get('expand')
+    expand = bool(request.args.get('expand') == 'true')
     limit = request.args.get('limit')
     return json.dumps(app.do_command('expr', {'expr': expr, 'expand': expand, 'limit': limit}))
 

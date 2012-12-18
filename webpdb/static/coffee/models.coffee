@@ -84,6 +84,9 @@ class Variable extends BaseObject
             console.log('refresh', @)
         , 'json')
 
+    has_child: =>
+        return @child_count > 0
+
     is_equal: (data) =>
         return @repr == data.repr and @type == data.type and @child_count == data.n_subnodes
 
@@ -111,12 +114,15 @@ class Variable extends BaseObject
                 @children.push(child)
                 @publish('child_added', child)
             
-        removed = (name for name, child in @name_map when name not of name_set)
+        removed = (name for name, child of @name_map when name not of name_set)
         if removed.length > 0
             for name in removed
                 @publish('child_removed', @name_map[name])
                 delete @name_map[name]
             @children = (child for child in @children when child.name not in removed)
+
+    value: =>
+        return if @repr == 'N/A' then '' else @repr
 
     load_children: =>
         @expand = true 
@@ -132,3 +138,6 @@ class Namespace extends Variable
         @limit = 256
         @expand = true
         event_dispatcher.subscribe('namespace_update', @refresh)
+
+    load: (snapshot) =>
+        @merge_children(snapshot[@name].subnodes)

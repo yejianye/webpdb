@@ -1,4 +1,5 @@
 Today:
+- variable and namespace model
 - Reading winpdb namespace related code and implement similar logic in webpdb
 
 TODOs:
