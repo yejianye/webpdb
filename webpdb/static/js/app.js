@@ -91,6 +91,12 @@ Debugger = (function(_super) {
   __extends(Debugger, _super);
 
   function Debugger() {
+    this.get_breakpoints = __bind(this.get_breakpoints, this);
+
+    this.delete_breakpoint = __bind(this.delete_breakpoint, this);
+
+    this.add_breakpoint = __bind(this.add_breakpoint, this);
+
     this.stop = __bind(this.stop, this);
 
     this.step_out = __bind(this.step_out, this);
@@ -102,15 +108,21 @@ Debugger = (function(_super) {
     this["continue"] = __bind(this["continue"], this);
 
     this.do_command = __bind(this.do_command, this);
-    return Debugger.__super__.constructor.apply(this, arguments);
+
+    this.load = __bind(this.load, this);
+    this.breakpoints = {};
   }
 
-  Debugger.prototype.do_command = function(cmd, args) {
+  Debugger.prototype.load = function(snapshot) {
+    return this.breakpoints = snapshot.breakpoints;
+  };
+
+  Debugger.prototype.do_command = function(cmd, args, callback) {
     var params;
     params = args ? {
-      args: args
+      args: JSON.stringify(args)
     } : {};
-    return $.post("/command/" + cmd, params);
+    return $.post("/command/" + cmd, params, callback, 'json');
   };
 
   Debugger.prototype["continue"] = function() {
@@ -131,6 +143,42 @@ Debugger = (function(_super) {
 
   Debugger.prototype.stop = function() {
     return this.do_command('stop');
+  };
+
+  Debugger.prototype.add_breakpoint = function(filename, lineno) {
+    var _this = this;
+    return this.do_command('add_breakpoint', {
+      filename: filename,
+      lineno: lineno
+    }, function(data) {
+      console.log('add_breakpoint', data);
+      _this.breakpoints = data;
+      return _this.publish('breakpoints_changed');
+    });
+  };
+
+  Debugger.prototype.delete_breakpoint = function(bp_id) {
+    this.do_command('delete_breakpoint', {
+      id: bp_id
+    });
+    delete this.breakpoints[bp_id];
+    return this.publish('breakpoints_changed', bp_id);
+  };
+
+  Debugger.prototype.get_breakpoints = function(filename) {
+    var bp, bp_id;
+    return (function() {
+      var _ref, _results;
+      _ref = this.breakpoints;
+      _results = [];
+      for (bp_id in _ref) {
+        bp = _ref[bp_id];
+        if (filename === null || bp.filename === filename) {
+          _results.push(bp);
+        }
+      }
+      return _results;
+    }).call(this);
   };
 
   return Debugger;
@@ -204,10 +252,11 @@ AppController = (function(_super) {
       _this.locals_view = new NamespaceView(_this.locals, $('#locals'));
       _this.globals_view = new NamespaceView(_this.globals, $('#globals'));
       _this.code = new SourceCode(_this.stack);
-      _this.code_view = new SourceCodeView(_this.code);
+      _this.code_view = new SourceCodeView(_this.code, _this["debugger"]);
       _this.console_view = new ConsoleView(_this.dispatcher);
       if (data.snapshot) {
         console.log('snapshot', data.snapshot);
+        _this["debugger"].load(data.snapshot);
         _this.stack.load(data.snapshot);
         _this.locals.load(data.snapshot);
         _this.globals.load(data.snapshot);

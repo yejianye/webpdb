@@ -1,7 +1,13 @@
 Today:
-- UI Touch-up:
-    - styles - bold, top/bottom border line etc
-- Variable Model: reformat strings
+- breakpoints model
+    in debugger it should have 
+    - add_breakpoint
+    - remove_breakpoint
+    - get_breakpoints(file)
+- server-side, cmd_break(cmd, args)
+- cmd_continue
+- SourceCodeView show breakpoint icon icon-map-marker
+
 
 TODOs:
 - stack view
@@ -11,6 +17,8 @@ TODOs:
 - Variable Model: Identity Map
 
 Completed:
+- UI Touch-up:
+    - styles - bold, top/bottom border line etc .... done
 - Variable Tree View logic
     - expand icons ..... done
     - expand and collapse logic ..... done

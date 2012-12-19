@@ -88,26 +88,29 @@ class VariableView
         @update()
 
 class SourceCodeView
-    constructor: (model) ->
+    constructor: (model, dbg) ->
         @model = model
+        @debugger = dbg
         @el = $('#source')
         @pane_height = @el.height()
         @tmpl = _.template($('script.code-tmpl').html())
         model.subscribe('content_changed', @update_content)
         model.subscribe('lineno_changed', @update_lineno)
+        dbg.subscribe('breakpoints_changed', @update_breakpoints)
+        dbg.subscribe('breakpoints_removed', @update_breakpoints)
 
     update_content: =>
         @el.html(@tmpl({filename: @model.filename, content: @model.content}))
         prettyPrint()
         @code_height = @el.find('pre.prettyprint').height()
         @update_lineno()
+        @update_breakpoints()
         $(window).trigger('resize')
 
     update_lineno: =>
         console.log('update_lineno:', @model.lineno)
-        line_el = @el.find("ol li:nth-child(#{@model.lineno})")
-        offset = @el.scrollTop() + line_el.position().top
-        $('#source .code-highlighter').css('top', "#{offset}px")
+        offset = @line_offset(@model.lineno)
+        $('#source .code-highlighter').css('top', offset)
         if offset - @pane_height/2 < 0
             scroll = 0
         else if offset + @pane_height/2 > @code_height
@@ -115,6 +118,18 @@ class SourceCodeView
         else
             scroll = offset - @pane_height/2
         @el.scrollTop(scroll)
+
+    update_breakpoints: =>
+        breakpoints = @debugger.get_breakpoints(@model.filename)
+        container = @el.find('div.breakpoints')
+        container.html('')
+        for bp in breakpoints
+            bp_el = $("<div class='bp'><i class='icon-exclamation-sign'></i></div>").appendTo(container)
+            bp_el.css('top', @line_offset(bp.lineno))
+
+    line_offset: (lineno) =>
+        line_el = @el.find("ol li:nth-child(#{lineno})")
+        return @el.scrollTop() + line_el.position().top
 
 class ConsoleView
     constructor: (dispatcher) ->

@@ -38,14 +38,46 @@ class EventsDispatcher extends BaseObject
             return name
 
 class Debugger extends BaseObject
-    do_command: (cmd, args) =>
-        params = if args then { args: args } else {}
-        $.post("/command/#{cmd}", params)
-    continue: => @do_command('go')
-    step_over: => @do_command('next')
-    step_into: => @do_command('step')
-    step_out: => @do_command('return')
-    stop: => @do_command('stop')
+    constructor: ->
+        @breakpoints = {}
+
+    load: (snapshot) =>
+        @breakpoints = snapshot.breakpoints
+        
+    do_command: (cmd, args, callback) =>
+        params = if args then { args: JSON.stringify(args) } else {}
+        $.post("/command/#{cmd}", params, callback, 'json')
+
+    continue: => 
+        @do_command('go')
+
+    step_over: => 
+        @do_command('next')
+
+    step_into: => 
+        @do_command('step')
+
+    step_out: => 
+        @do_command('return')
+
+    stop: => 
+        @do_command('stop')
+
+    add_breakpoint: (filename, lineno) => 
+        @do_command('add_breakpoint', {filename: filename, lineno: lineno},
+            (data) =>
+                console.log('add_breakpoint', data)
+                @breakpoints = data
+                @publish('breakpoints_changed')
+        )
+
+    delete_breakpoint: (bp_id) => 
+        @do_command('delete_breakpoint', {id: bp_id})
+        delete @breakpoints[bp_id]
+        @publish('breakpoints_changed', bp_id)
+
+    get_breakpoints: (filename) =>
+        return (bp for bp_id, bp of @breakpoints when filename is null or bp.filename == filename)
 
 class PaneController extends BaseObject
     constructor: ->
@@ -93,10 +125,11 @@ class AppController extends BaseObject
             @locals_view = new NamespaceView(@locals, $('#locals'))
             @globals_view = new NamespaceView(@globals, $('#globals'))
             @code = new SourceCode(@stack)
-            @code_view = new SourceCodeView(@code)
+            @code_view = new SourceCodeView(@code, @debugger)
             @console_view = new ConsoleView(@dispatcher)
             if data.snapshot
                 console.log('snapshot', data.snapshot)
+                @debugger.load(data.snapshot)
                 @stack.load(data.snapshot)
                 @locals.load(data.snapshot)
                 @globals.load(data.snapshot)

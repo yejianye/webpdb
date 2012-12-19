@@ -91,8 +91,8 @@ def init():
 
 @app.route('/command/<cmd>', methods=['POST'])
 def command(cmd):
-    print app.do_command(cmd, request.form.get('args', ''))
-    return ''
+    result = app.do_command(cmd, json.loads(request.form.get('args', '{}')))
+    return json.dumps(result)
 
 @app.route('/source', methods=['GET'])
 def source_code():
