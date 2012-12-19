@@ -77,6 +77,7 @@ class Variable extends BaseObject
         $.get('/expr', {expr: @expr, expand: @expand, limit: @limit}, (data) =>
             if not @is_equal(data)
                 @set_data(data)
+                console.log('var', @name, 'changed')
                 @publish('changed')
             if @expand
                 @merge_children(data.subnodes)
@@ -107,6 +108,8 @@ class Variable extends BaseObject
                 if not child.is_equal(data)
                     child.set_data(data)
                     child.publish('changed')
+                if child.expand
+                    child.refresh()
             else
                 child = new Variable(data)
                 @name_map[data.name] = child

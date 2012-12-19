@@ -14,7 +14,6 @@ BaseObject = (function() {
   }
 
   BaseObject.prototype.publish = function(event, data) {
-    console.log('publish', event, data);
     return $(this).trigger(event, data);
   };
 

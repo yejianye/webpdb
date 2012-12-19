@@ -1,15 +1,15 @@
 Today:
-- Variable Tree View logic
-    - expand icons
-    - expand and collapse logic
-
 TODOs:
 - stack view
     - click any stack loads the corresponding source file and point it to that line
 - Support eval any expr in console
 - Support breakpoints
+- Variable Model: Identity Map
 
 Completed:
+- Variable Tree View logic
+    - expand icons ..... done
+    - expand and collapse logic ..... done
 - variable and namespace model .... done
 - Reading winpdb namespace related code and implement similar logic in webpdb .... done
 - accordion on the left panel .... done

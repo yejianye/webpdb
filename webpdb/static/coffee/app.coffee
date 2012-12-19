@@ -1,6 +1,5 @@
 class BaseObject
     publish: (event, data) =>
-        console.log('publish', event, data)
         $(this).trigger(event, data)
 
     subscribe: (event, handler) =>
