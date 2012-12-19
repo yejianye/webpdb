@@ -1,4 +1,8 @@
 Today:
+- UI Touch-up:
+    - styles - bold, top/bottom border line etc
+- Variable Model: reformat strings
+
 TODOs:
 - stack view
     - click any stack loads the corresponding source file and point it to that line

@@ -134,6 +134,7 @@ class Variable extends BaseObject
         @expand = false
         @children = null
         @name_map = null
+        @refresh()
 
 class Namespace extends Variable
     constructor: (event_dispatcher, name, expr) ->

@@ -10,8 +10,21 @@ table, caption, tbody, tfoot, thead, tr, th, td {
     box-sizing: border-box;
 }
 
-li {
+ul {
+    margin-bottom: 0px;
+}
+
+ul li {
     list-style: none;
+}
+
+@font-face {
+    font-family: 'Inconsolata';
+    src: url('../fonts/Inconsolata.otf');
+}
+
+.monospace {
+    font-family: 'Inconsolata';
 }
 
 body {
@@ -109,11 +122,15 @@ i.primitive {
 
 ul.variable-list {
     margin-left: 15px;
+    span.var-name {
+        font-weight: bold;
+    }
 }
 
 .pane-container {
     height: 100%;
-    border: 1px solid #aaa;
+    border: 1px solid #bbb;
+    border-top: 0px;
     overflow: hidden;
     min-width: 800px;
     min-height: 500px;
@@ -122,6 +139,8 @@ ul.variable-list {
     }
     .section-header {
         .accordion-graident;
+        border-top: 1px #bbb solid;
+        border-bottom: 1px #bbb solid;
         font-weight: bold;
         background-color: #ccc;
         padding-left: 10px;
@@ -135,32 +154,34 @@ ul.variable-list {
         ul {
             margin-left: 0px;
             margin-right: 0px;
-        }
-        li.current-frame {
-            background-color: #ECECF0;
-        }
-        li {
-            padding-left: 15px;
-            width: 100%;
-            span.filename {
-                float: right;
-                padding-right: 5px;
+            li.current-frame {
+                background-color: #ECECF0;
+            }
+            li {
+                padding-left: 15px;
+                width: 100%;
+                span.filename {
+                    float: right;
+                    padding-right: 5px;
+                }
             }
         }
     }
     .right-pane {
-        margin-left: -5px;
+    }
+    #source > div.title, #console > div.title {
+        .source-view-title-graident;
+        border-top: 1px #bbb solid;
+        border-bottom: 1px #bbb solid;
+        padding-left: 10px;
+        color: #666;
+        height: 20px;
+        font-size: 0.9em;
     }
     #source {
         min-width: 400px;
         min-height: 200px;
         overflow: hidden;
-        div.title {
-            .source-view-title-graident;
-            padding-left: 10px;
-            color: #666;
-            height: 20px;
-        }
         div.content {
             position: relative;
             overflow: scroll;
@@ -175,26 +196,36 @@ ul.variable-list {
                 padding-right: 5px;
                 i.icon-chevron-right {
                     margin-left: 20px;
+                    vertical-align: baseline;
                 }
             }
-            pre {
+            pre.prettyprint {
                 .rounded-corners(0px);
+                font-size: 0.8em;
             }
         }
     }
     #console {
+        overflow: hidden;
         min-width: 400px;
         min-height: 50px;
         background: white;
+        div.title {
+            margin-top: -2px;
+        }
+        ul.messages {
+            overflow: scroll;
+            font-size: 0.8em;
+        }
     }
 }
 
 .vsplitbar{
-    width: 5px;
-    border-left: 1px solid #aaa;
+    width: 2px;
+    background-color: #bbb;
 }
 
 .hsplitbar{
-    height: 5px;
-    border-top: 1px solid #aaa;
+    height: 2px;
+    border-top: 1px #bbb solid;
 }

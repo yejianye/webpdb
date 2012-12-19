@@ -69,6 +69,9 @@ class WebServer(Flask):
         while True:
             self.event_queue.put(conn.recv(4096))
 
+    def clear_event_queue(self):
+        self.event_queue = JoinableQueue()
+
     def shutdown(self):
         self.event_server.close()
 
@@ -80,6 +83,7 @@ def index():
 
 @app.route('/init', methods=['GET'])
 def init():
+    app.clear_event_queue()
     return jsonify(
         snapshot = app.do_command('snapshot'),
         event_eof = config.event_eof,
@@ -118,6 +122,7 @@ def events():
     ws = request.environ['wsgi.websocket']
     while True:
         event = app.event_queue.get()
+        print '[[webserver]] send event', event
         ws.send(event)
     return  
 

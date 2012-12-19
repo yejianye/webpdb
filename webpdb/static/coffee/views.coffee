@@ -115,3 +115,16 @@ class SourceCodeView
         else
             scroll = offset - @pane_height/2
         @el.scrollTop(scroll)
+
+class ConsoleView
+    constructor: (dispatcher) ->
+        @el = $('#console > ul.messages')
+        dispatcher.subscribe('debugger_output', (evt, data) =>
+            @update(data.msg)
+        )
+
+    update: (msg) =>
+        $("<li>#{msg}</li>").appendTo(@el)
+
+    load: (snapshot) =>
+        @update(msg) for msg in snapshot.messages

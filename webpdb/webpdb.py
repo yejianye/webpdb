@@ -11,6 +11,11 @@ import socket
 from threading import Thread
 import config
 
+class CEventDebuggerOutput(rpdb2.CEvent):
+    def __init__(self, msg):
+        super(CEventDebuggerOutput, self).__init__()
+        self.msg = msg
+
 class Debugger(Thread):
     namespace_filter_level = 2
     event_types = {
@@ -45,6 +50,7 @@ class Debugger(Thread):
         rpdb2.CEventEncoding: {},
         rpdb2.CEventSynchronicity: {},
         rpdb2.CEventClearSourceCache: {},
+        CEventDebuggerOutput: {'msg' : 'msg'},
     }
 
     def __init__(self, sm):
@@ -56,6 +62,7 @@ class Debugger(Thread):
         sm.set_printer(self.printer)
         sm.register_callback(self.send_event_to_webserver, self.event_types, fSingleUse=False)
         self.files = set()
+        self.messages = []
 
     def run(self):
         self.cmd_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -73,6 +80,8 @@ class Debugger(Thread):
 
     def printer(self, msg):
         print '[DEBUGGER] ', msg
+        self.messages.append(msg)
+        self.send_event_to_webserver(CEventDebuggerOutput(msg))
 
     def execute_command(self, cmd_obj):
         print 'execute_command', cmd_obj
@@ -97,14 +106,13 @@ class Debugger(Thread):
         return list(self.files)
 
     def cmd_snapshot(self, args):
-        if self.stack:
-            return {
-                'stack' : self.stack,
-                'locals' : self.cmd_expr({'expr': 'locals()', 'expand': True}),
-                'globals' : self.cmd_expr({'expr': 'globals()', 'expand': True}),
-            }
-        else:
-            return None
+        snapshot = {
+            'messages' : self.messages, 
+            'stack' : self.stack,
+            'locals' : self.cmd_expr({'expr': 'locals()', 'expand': True}),
+            'globals' : self.cmd_expr({'expr': 'globals()', 'expand': True}),
+        }
+        return snapshot
 
     def cmd_expr(self, args):
         result = self.sm.get_namespace([(args['expr'], args['expand'])], self.namespace_filter_level, args.get('limit', 128))

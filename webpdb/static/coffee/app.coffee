@@ -1,5 +1,6 @@
 class BaseObject
     publish: (event, data) =>
+        console.log('publish', @, event, data)
         $(this).trigger(event, data)
 
     subscribe: (event, handler) =>
@@ -10,6 +11,7 @@ class EventsDispatcher extends BaseObject
         @event_translation_map = {
             CEventStack: 'stack_update',
             CEventNamespace: 'namespace_update',
+            CEventDebuggerOutput: 'debugger_output',
         }
         @ws_url = url
         @eof = eof
@@ -45,10 +47,13 @@ class Debugger extends BaseObject
     step_out: => @do_command('return')
     stop: => @do_command('stop')
 
-class PanelController extends BaseObject
+class PaneController extends BaseObject
     constructor: ->
         @pane_container = $('.pane-container')
         @source_pane = $('#source')
+        @source_title_height = $('#source > div.title').height()
+        @console_pane = $('#console')
+        @console_title_height = $('#console > div.title').height()
         @topbar_height = $('.topbar').height()
         @on_resize()
         @pane_container.splitter({
@@ -59,16 +64,19 @@ class PanelController extends BaseObject
         $('.right-pane').splitter({
             splitHorizontal: true,
             sizeBottom: 100
-        })
-        $(window).resize(@on_resize)
+        }).resize(@test)
+        $(window).resize(@on_right_pane_resize)
+
+    on_right_pane_resize: =>
+        source_content = $('#source > div.content')
+        source_content.height(@source_pane.height() - @source_title_height)
+        source_content.find('> pre').css('min-height', source_content.height())
+        $('#console > ul.messages').height(@console_pane.height() - @console_title_height)
 
     on_resize: =>
         win_height = $(window).height()
         @pane_container.height(win_height - @topbar_height)
-        source_title = $('#source > div.title')
-        source_content = $('#source > div.content')
-        source_content.height(@source_pane.height() - source_title.height())
-        source_content.find('> pre').css('min-height', source_content.height())
+        @on_right_pane_resize()
 
 class AppController extends BaseObject
     constructor: ->
@@ -86,12 +94,14 @@ class AppController extends BaseObject
             @globals_view = new NamespaceView(@globals, $('#globals'))
             @code = new SourceCode(@stack)
             @code_view = new SourceCodeView(@code)
+            @console_view = new ConsoleView(@dispatcher)
             if data.snapshot
                 console.log('snapshot', data.snapshot)
                 @stack.load(data.snapshot)
                 @locals.load(data.snapshot)
                 @globals.load(data.snapshot)
-            @panel_controller = new PanelController()
+                @console_view.load(data.snapshot)
+            @pane_controller = new PaneController()
             $('#btn-continue').click( => 
                 @debugger.continue()
             )
