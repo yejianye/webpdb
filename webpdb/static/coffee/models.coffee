@@ -60,7 +60,6 @@ class SourceCode extends BaseObject
             @publish('content_changed')
         else
             $.get("/source", {filename: @filename}, (content) => 
-                console.log('source code:', content)
                 @caches[@filename] = content            
                 @content = content
                 @publish('content_changed')
@@ -71,7 +70,7 @@ class Variable extends BaseObject
         @set_data(data)
         @expand = false
         @children = null
-        @name_map = {}
+        @name_map = null
         @limit = 10
 
     refresh:  =>
@@ -91,7 +90,7 @@ class Variable extends BaseObject
         return @repr == data.repr and @type == data.type and @child_count == data.n_subnodes
 
     set_data: (data) =>
-        @name = data.name
+        @name = data.name if data.name
         @expr = data.expr
         @repr = data.repr
         @type = data.type
@@ -131,6 +130,7 @@ class Variable extends BaseObject
     unload_children: =>
         @expand = false
         @children = null
+        @name_map = null
 
 class Namespace extends Variable
     constructor: (event_dispatcher, name, expr) ->

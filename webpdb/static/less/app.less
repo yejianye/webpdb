@@ -72,7 +72,7 @@ pre.prettyprint {
 .arrow-right(@width: 5px, @height: 5px, @color:black) {
     display: inline-block;
 	border-left: @color @width solid;
-	border-right: transparent @width solid;
+	border-right: transparent 0px solid;
 	border-top: transparent @height solid;
 	border-bottom: transparent @height solid;
 	width: 0px;
@@ -86,15 +86,21 @@ pre.prettyprint {
 	border-left: transparent @width solid;
 	border-right: transparent @width solid;
 	border-top: @color @height solid;
-	border-bottom: transparent @height solid;
+	border-bottom: transparent 0px solid;
 }
 
 i.expanded {
-    .arrow-down(4px, 5px);
+    .arrow-down(5px, 7px, #666);
 }
 
 i.collapsed {
-    .arrow-right(5px, 4px);
+    .arrow-right(7px, 5px, #666);
+}
+
+i.expanded, i.collapsed {
+    margin-right: 5px;
+    cursor: pointer;
+    vertical-align: middle;
 }
 
 i.primitive {
@@ -111,6 +117,9 @@ ul.variable-list {
     overflow: hidden;
     min-width: 800px;
     min-height: 500px;
+    .left-pane {
+        overflow: scroll;
+    }
     .section-header {
         .accordion-graident;
         font-weight: bold;
@@ -145,28 +154,32 @@ ul.variable-list {
     #source {
         min-width: 400px;
         min-height: 200px;
-        overflow: scroll;
+        overflow: hidden;
         div.title {
             .source-view-title-graident;
             padding-left: 10px;
             color: #666;
-        }
-        .code-highlighter {
-            position: absolute;
-            width: 100%;
-            border: 1px solid #888;
-            background-color: rgba(200, 210, 83, 0.2);
             height: 20px;
-            left: 0px;
-            padding-left: 5px;
-            padding-right: 5px;
-            i.icon-chevron-right {
-                margin-left: 20px;
-            }
         }
-        pre {
-            .rounded-corners(0px);
-            min-height: 1000px;
+        div.content {
+            position: relative;
+            overflow: scroll;
+            .code-highlighter {
+                position: absolute;
+                width: 100%;
+                border: 1px solid #888;
+                background-color: rgba(200, 210, 83, 0.2);
+                height: 20px;
+                left: 0px;
+                padding-left: 5px;
+                padding-right: 5px;
+                i.icon-chevron-right {
+                    margin-left: 20px;
+                }
+            }
+            pre {
+                .rounded-corners(0px);
+            }
         }
     }
     #console {

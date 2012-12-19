@@ -143,6 +143,7 @@ PanelController = (function(_super) {
   function PanelController() {
     this.on_resize = __bind(this.on_resize, this);
     this.pane_container = $('.pane-container');
+    this.source_pane = $('#source');
     this.topbar_height = $('.topbar').height();
     this.on_resize();
     this.pane_container.splitter({
@@ -158,9 +159,13 @@ PanelController = (function(_super) {
   }
 
   PanelController.prototype.on_resize = function() {
-    var win_height;
+    var source_content, source_title, win_height;
     win_height = $(window).height();
-    return this.pane_container.height(win_height - this.topbar_height);
+    this.pane_container.height(win_height - this.topbar_height);
+    source_title = $('#source > div.title');
+    source_content = $('#source > div.content');
+    source_content.height(this.source_pane.height() - source_title.height());
+    return source_content.find('> pre').css('min-height', source_content.height());
   };
 
   return PanelController;
@@ -181,7 +186,6 @@ AppController = (function(_super) {
     return $.get('/init', function(data) {
       _this.dispatcher = new EventsDispatcher("ws://" + window.location.host + "/events", data.event_eof);
       _this["debugger"] = new Debugger();
-      _this.panel_controller = new PanelController();
       _this.stack = new Stack(_this.dispatcher);
       _this.stack_view = new StackView(_this.stack);
       _this.locals = new Namespace(_this.dispatcher, 'locals', 'locals()');
@@ -196,6 +200,7 @@ AppController = (function(_super) {
         _this.locals.load(data.snapshot);
         _this.globals.load(data.snapshot);
       }
+      _this.panel_controller = new PanelController();
       $('#btn-continue').click(function() {
         return _this["debugger"]["continue"]();
       });

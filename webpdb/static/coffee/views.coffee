@@ -49,14 +49,43 @@ class VariableView
         @el = el
         @model = model
         @self_el = $("<div class='variable'></div>").appendTo(@el)
+        @attrs_el = $("<ul class='variable-list'></ul>").appendTo(@el)
+        @subviews = {}
         @tmpl = _.template($('script.variable-tmpl').html())
         @update()
         model.subscribe('changed', @update)
-        #model.subscribe('child_added', @attr_added)
-        #model.subscribe('child_removed', @attr_removed)
+        model.subscribe('child_added', (evt, variable) =>
+            @add_attr(variable)
+        )
+        model.subscribe('child_removed', (evt, variable) =>
+            @remove_attr(variable)
+        )
 
     update: =>
         @self_el.html(@tmpl({variable: @model}))
+        @self_el.find('> i.var-collapse-ctrl').click(@toggle_attrs)
+
+    add_attr: (variable) =>
+        attr_el = $('<li></li>').appendTo(@attrs_el)
+        attr_view = new VariableView(variable, attr_el)
+        @subviews[variable.name] = attr_view
+             
+    remove_attr: (variable) =>
+        attr_view = @subviews[variable.name]
+        attr_view.el.remove()
+        delete @subviews[variable.name]
+
+    toggle_attrs: =>
+        console.log('toggle attrs')
+        if not @model.has_child()
+            return
+        if not @model.expand
+            @model.load_children()
+        else
+            @model.unload_children()
+            @subviews = {}
+            @attrs_el.html('')
+        @update()
 
 class SourceCodeView
     constructor: (model) ->
@@ -68,17 +97,16 @@ class SourceCodeView
         model.subscribe('lineno_changed', @update_lineno)
 
     update_content: =>
-        console.log('update_content', @model.content)
         @el.html(@tmpl({filename: @model.filename, content: @model.content}))
         prettyPrint()
         @code_height = @el.find('pre.prettyprint').height()
         @update_lineno()
+        $(window).trigger('resize')
 
     update_lineno: =>
         console.log('update_lineno:', @model.lineno)
         line_el = @el.find("ol li:nth-child(#{@model.lineno})")
         offset = @el.scrollTop() + line_el.position().top
-        console.log('offset', offset)
         $('#source .code-highlighter').css('top', "#{offset}px")
         if offset - @pane_height/2 < 0
             scroll = 0

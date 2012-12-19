@@ -59,6 +59,7 @@
                 <pre class="prettyprint linenums language-python"><%= content %></pre>
             </div>
         </script>
+
         <script type='text/template' class='stack-tmpl'>
             <div class='section-header' data-toggle="collapse" data-target="#stack-list">
                 <i class='icon-circle-arrow-down'></i>
@@ -77,11 +78,14 @@
                 <%});%>
             </ul>
         </script>
+
         <script type='text/template' class='variable-tmpl'>
-            <% if (variable.has_child()) { %>
-                <i class='collapsed'></i> 
+            <% if (!variable.has_child()) { %>
+                <i class='var-collapse-ctrl primitive'></i> 
+            <% } else if (variable.expand) { %>
+                <i class='var-collapse-ctrl expanded'></i> 
             <% } else { %>
-                <i class='primitive'></i> 
+                <i class='var-collapse-ctrl collapsed'></i> 
             <% } %>
             <span class='var-name'><%- variable.name %></span>
             <% if (variable.value() === null) {%>

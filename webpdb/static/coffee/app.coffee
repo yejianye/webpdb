@@ -49,6 +49,7 @@ class Debugger extends BaseObject
 class PanelController extends BaseObject
     constructor: ->
         @pane_container = $('.pane-container')
+        @source_pane = $('#source')
         @topbar_height = $('.topbar').height()
         @on_resize()
         @pane_container.splitter({
@@ -65,6 +66,10 @@ class PanelController extends BaseObject
     on_resize: =>
         win_height = $(window).height()
         @pane_container.height(win_height - @topbar_height)
+        source_title = $('#source > div.title')
+        source_content = $('#source > div.content')
+        source_content.height(@source_pane.height() - source_title.height())
+        source_content.find('> pre').css('min-height', source_content.height())
 
 class AppController extends BaseObject
     constructor: ->
@@ -74,7 +79,6 @@ class AppController extends BaseObject
         $.get('/init', (data) =>
             @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events", data.event_eof)
             @debugger = new Debugger()
-            @panel_controller = new PanelController()
             @stack = new Stack(@dispatcher)
             @stack_view = new StackView(@stack)
             @locals = new Namespace(@dispatcher, 'locals', 'locals()')
@@ -88,6 +92,7 @@ class AppController extends BaseObject
                 @stack.load(data.snapshot)
                 @locals.load(data.snapshot)
                 @globals.load(data.snapshot)
+            @panel_controller = new PanelController()
             $('#btn-continue').click( => 
                 @debugger.continue()
             )
