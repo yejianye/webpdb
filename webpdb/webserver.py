@@ -9,6 +9,7 @@ import gevent.socket as socket
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from gevent.queue import JoinableQueue
+from gevent.event import AsyncResult
 import config
 
 static_root = os.path.join(os.path.dirname(__file__), 'static')
@@ -21,30 +22,42 @@ class WebServer(Flask):
         print 'Webserver started'
         self.debug = True
         self.cmd_queue = JoinableQueue()
-        self.cmd_result_queue = JoinableQueue()
         self.event_queue = JoinableQueue()
+        self.cmd_id = 0
+        self.cmd_results = {}
         gevent.spawn(self.send_commands_to_debugger)
         gevent.spawn(self.receive_events_from_debugger)
 
     def do_command(self, cmd, args=''):
-        self.cmd_queue.put(json.dumps({
-            'cmd' : cmd,
-            'args' : args,
-        }))
-        return json.loads(self.cmd_result_queue.get())
+        cmd_id = self.generate_cmd_id()
+        self.cmd_results[cmd_id] = AsyncResult()
+        self.cmd_queue.put((
+            cmd_id, 
+            json.dumps({
+                'cmd' : cmd,
+                'args' : args, 
+            }))
+        )
+        result = self.cmd_results[cmd_id].wait()
+        return json.loads(result)
+
+    def generate_cmd_id(self):
+        self.cmd_id += 1
+        return self.cmd_id
 
     def send_commands_to_debugger(self):
         print 'start send_commands_to_debugger'
         conn = None
         while True:
-            cmd = self.cmd_queue.get()
+            cmd_id, cmd = self.cmd_queue.get()
             if not cmd:
                 break
             if not conn:
                 conn = socket.create_connection(config.command_socket_addr)
             print 'send command', cmd
             conn.send(cmd)
-            self.cmd_result_queue.put(conn.recv(4096))
+            result = self.cmd_results.pop(cmd_id)
+            result.set(conn.recv(4096))
         
     def receive_events_from_debugger(self):
         print 'start receive_events_from_debugger'
