@@ -1,18 +1,17 @@
 Today:
-- variable and namespace model
-- Reading winpdb namespace related code and implement similar logic in webpdb
+- Variable Tree View logic
+    - expand icons
+    - expand and collapse logic
 
 TODOs:
 - stack view
     - click any stack loads the corresponding source file and point it to that line
-- jQuery Tree View widget and how does it work
-- Design Namespace model
-
-- Coffeescript Model
-    - Thread
+- Support eval any expr in console
 - Support breakpoints
 
 Completed:
+- variable and namespace model .... done
+- Reading winpdb namespace related code and implement similar logic in webpdb .... done
 - accordion on the left panel .... done
 - code panel
     - title bar (full-path of current file) .... done
