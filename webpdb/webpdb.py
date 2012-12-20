@@ -70,10 +70,11 @@ class Debugger(Thread):
         self.cmd_server.bind(config.command_socket_addr)
         self.cmd_server.listen(16)
         bufsize = 4096
-        conn, _ = self.cmd_server.accept()
         while True:
+            conn, _ = self.cmd_server.accept()
             cmd_obj = json.loads(conn.recv(bufsize))
             conn.send(json.dumps(self.execute_command(cmd_obj)))
+            conn.close()
 
     def shutdown(self):
         self.cmd_server.close()

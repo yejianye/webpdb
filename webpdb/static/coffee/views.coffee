@@ -106,6 +106,7 @@ class SourceCodeView
         console.log('source code', @model.content)
         @el.html(@tmpl({filename: @model.filename, content: @model.content}))
         prettyPrint()
+        $(window).trigger('resize')
         @content_el = @el.find('div.content').mousemove(@highlight_line)
         @content_el.mouseout( => @cursor_el.hide())
         @content_el.click(@toggle_breakpoint)
@@ -113,7 +114,6 @@ class SourceCodeView
         @code_height = @el.find('pre.prettyprint').height()
         @update_breakpoints()
         @update_lineno()
-        $(window).trigger('resize')
 
     highlight_line: (evt) =>
         offset = evt.pageY - @content_el.offset().top + @content_el.scrollTop()
@@ -130,13 +130,14 @@ class SourceCodeView
         console.log('update_lineno:', @model.lineno)
         offset = @line_offset(@model.lineno)
         $('#source .code-highlighter').css('top', offset)
-        if offset - @pane_height/2 < 0
+        content_height = @content_el.height()
+        if offset - content_height/2 < 0
             scroll = 0
-        else if offset + @pane_height/2 > @code_height
-            scroll = @code_height - @pane_height/2
+        else if offset + content_height/2 > @code_height
+            scroll = @code_height - content_height/2
         else
-            scroll = offset - @pane_height/2
-        @el.scrollTop(scroll)
+            scroll = offset - content_height/2
+        @content_el.scrollTop(scroll)
 
     update_breakpoints: =>
         breakpoints = @debugger.get_breakpoints(@model.filename)

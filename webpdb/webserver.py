@@ -52,12 +52,17 @@ class WebServer(Flask):
             cmd_id, cmd = self.cmd_queue.get()
             if not cmd:
                 break
-            if not conn:
-                conn = socket.create_connection(config.command_socket_addr)
             print 'send command', cmd
+            conn = socket.create_connection(config.command_socket_addr)
             conn.send(cmd)
-            result = self.cmd_results.pop(cmd_id)
-            result.set(conn.recv(4096))
+            result = ''
+            while True:
+                data = conn.recv(4096)
+                if not data: break
+                result += data
+            cmd_result = self.cmd_results.pop(cmd_id)
+            cmd_result.set(result)
+            conn.close()
         
     def receive_events_from_debugger(self):
         print 'start receive_events_from_debugger'
