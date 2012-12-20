@@ -12,6 +12,7 @@ class EventsDispatcher extends BaseObject
             CEventStack: 'stack_update',
             CEventNamespace: 'namespace_update',
             CEventDebuggerOutput: 'debugger_output',
+            CEventBreakpoint: 'breakpoints_update',
         }
         @ws_url = url
         @eof = eof
@@ -38,8 +39,9 @@ class EventsDispatcher extends BaseObject
             return name
 
 class Debugger extends BaseObject
-    constructor: ->
+    constructor: (dispatcher) ->
         @breakpoints = {}
+        dispatcher.subscribe('breakpoints_update', @update_breakpoints)
 
     load: (snapshot) =>
         @breakpoints = snapshot.breakpoints
@@ -63,18 +65,25 @@ class Debugger extends BaseObject
     stop: => 
         @do_command('stop')
 
+    toggle_breakpoint: (filename, lineno) =>
+        bps = @get_breakpoints(filename)
+        for bp in bps
+            if bp.lineno == lineno
+                @delete_breakpoint(bp.id)
+                return
+        @add_breakpoint(filename, lineno)
+
     add_breakpoint: (filename, lineno) => 
-        @do_command('add_breakpoint', {filename: filename, lineno: lineno},
-            (data) =>
-                console.log('add_breakpoint', data)
-                @breakpoints = data
-                @publish('breakpoints_changed')
-        )
+        @do_command('add_breakpoint', {filename: filename, lineno: lineno})
 
     delete_breakpoint: (bp_id) => 
         @do_command('delete_breakpoint', {id: bp_id})
-        delete @breakpoints[bp_id]
-        @publish('breakpoints_changed', bp_id)
+
+    update_breakpoints: =>
+        @do_command('get_breakpoints', {}, (data) =>
+            @breakpoints = data
+            @publish('breakpoints_changed')
+        )
 
     get_breakpoints: (filename) =>
         return (bp for bp_id, bp of @breakpoints when filename is null or bp.filename == filename)
@@ -112,12 +121,13 @@ class PaneController extends BaseObject
 
 class AppController extends BaseObject
     constructor: ->
+        $.ajaxSetup({cache: false})
         @init()
 
     init: =>
         $.get('/init', (data) =>
             @dispatcher = new EventsDispatcher("ws://#{ window.location.host }/events", data.event_eof)
-            @debugger = new Debugger()
+            @debugger = new Debugger(@dispatcher)
             @stack = new Stack(@dispatcher)
             @stack_view = new StackView(@stack)
             @locals = new Namespace(@dispatcher, 'locals', 'locals()')
@@ -151,6 +161,7 @@ class AppController extends BaseObject
                 @debugger.stop()
             )
             @dispatcher.start()
+            #@debugger.add_breakpoint('/Users/ryan/source_code/webpdb/webpdb/test.py', 13)
         , 'json')
 $ ->
     window.app = new AppController()

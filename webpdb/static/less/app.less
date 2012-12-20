@@ -195,17 +195,26 @@ ul.variable-list {
                 padding-left: 5px;
                 padding-right: 5px;
                 i.icon-chevron-right {
-                    opacity: 0.7;
                     margin-left: 20px;
                     vertical-align: baseline;
                 }
+            }
+            .cursor-highlighter {
+                position: absolute;
+                display: none;
+                width: 100%;
+                border: 1px solid #ddd;
+                background-color: rgba(200, 210, 83, 0.1);
+                height: 20px;
+                left: 0px;
+                padding-left: 5px;
+                padding-right: 5px;
             }
             .breakpoints {
                 position: absolute;
                 top: 0;
                 left: 0;
                 div.bp {
-                    opacity: 0.7;
                     position: absolute;
                     left: 26px;
                 }
@@ -213,6 +222,7 @@ ul.variable-list {
             pre.prettyprint {
                 .rounded-corners(0px);
                 font-size: 0.8em;
+                width: 2048px;
             }
         }
     }

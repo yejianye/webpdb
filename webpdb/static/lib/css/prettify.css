@@ -11,6 +11,7 @@
   padding: 8px;
   background-color: #f7f7f9;
   border: 0px;
+  overflow: hidden;
 }
 .prettyprint.linenums {
   -webkit-box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
@@ -25,6 +26,6 @@ ol.linenums {
 ol.linenums li {
   padding-left: 12px;
   color: #bebec5;
-  line-height: 20px;
+  line-height: 18px;
   text-shadow: 0 1px 0 #fff;
 }

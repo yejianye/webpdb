@@ -39,7 +39,8 @@ EventsDispatcher = (function(_super) {
     this.event_translation_map = {
       CEventStack: 'stack_update',
       CEventNamespace: 'namespace_update',
-      CEventDebuggerOutput: 'debugger_output'
+      CEventDebuggerOutput: 'debugger_output',
+      CEventBreakpoint: 'breakpoints_update'
     };
     this.ws_url = url;
     this.eof = eof;
@@ -90,12 +91,16 @@ Debugger = (function(_super) {
 
   __extends(Debugger, _super);
 
-  function Debugger() {
+  function Debugger(dispatcher) {
     this.get_breakpoints = __bind(this.get_breakpoints, this);
+
+    this.update_breakpoints = __bind(this.update_breakpoints, this);
 
     this.delete_breakpoint = __bind(this.delete_breakpoint, this);
 
     this.add_breakpoint = __bind(this.add_breakpoint, this);
+
+    this.toggle_breakpoint = __bind(this.toggle_breakpoint, this);
 
     this.stop = __bind(this.stop, this);
 
@@ -111,6 +116,7 @@ Debugger = (function(_super) {
 
     this.load = __bind(this.load, this);
     this.breakpoints = {};
+    dispatcher.subscribe('breakpoints_update', this.update_breakpoints);
   }
 
   Debugger.prototype.load = function(snapshot) {
@@ -145,24 +151,38 @@ Debugger = (function(_super) {
     return this.do_command('stop');
   };
 
+  Debugger.prototype.toggle_breakpoint = function(filename, lineno) {
+    var bp, bps, _i, _len;
+    bps = this.get_breakpoints(filename);
+    for (_i = 0, _len = bps.length; _i < _len; _i++) {
+      bp = bps[_i];
+      if (bp.lineno === lineno) {
+        this.delete_breakpoint(bp.id);
+        return;
+      }
+    }
+    return this.add_breakpoint(filename, lineno);
+  };
+
   Debugger.prototype.add_breakpoint = function(filename, lineno) {
-    var _this = this;
     return this.do_command('add_breakpoint', {
       filename: filename,
       lineno: lineno
-    }, function(data) {
-      console.log('add_breakpoint', data);
-      _this.breakpoints = data;
-      return _this.publish('breakpoints_changed');
     });
   };
 
   Debugger.prototype.delete_breakpoint = function(bp_id) {
-    this.do_command('delete_breakpoint', {
+    return this.do_command('delete_breakpoint', {
       id: bp_id
     });
-    delete this.breakpoints[bp_id];
-    return this.publish('breakpoints_changed', bp_id);
+  };
+
+  Debugger.prototype.update_breakpoints = function() {
+    var _this = this;
+    return this.do_command('get_breakpoints', {}, function(data) {
+      _this.breakpoints = data;
+      return _this.publish('breakpoints_changed');
+    });
   };
 
   Debugger.prototype.get_breakpoints = function(filename) {
@@ -237,6 +257,9 @@ AppController = (function(_super) {
 
   function AppController() {
     this.init = __bind(this.init, this);
+    $.ajaxSetup({
+      cache: false
+    });
     this.init();
   }
 
@@ -244,7 +267,7 @@ AppController = (function(_super) {
     var _this = this;
     return $.get('/init', function(data) {
       _this.dispatcher = new EventsDispatcher("ws://" + window.location.host + "/events", data.event_eof);
-      _this["debugger"] = new Debugger();
+      _this["debugger"] = new Debugger(_this.dispatcher);
       _this.stack = new Stack(_this.dispatcher);
       _this.stack_view = new StackView(_this.stack);
       _this.locals = new Namespace(_this.dispatcher, 'locals', 'locals()');

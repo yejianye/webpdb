@@ -94,18 +94,37 @@ class SourceCodeView
         @el = $('#source')
         @pane_height = @el.height()
         @tmpl = _.template($('script.code-tmpl').html())
+        @line_height = 18;
+        @top_padding = 8;
         model.subscribe('content_changed', @update_content)
         model.subscribe('lineno_changed', @update_lineno)
         dbg.subscribe('breakpoints_changed', @update_breakpoints)
         dbg.subscribe('breakpoints_removed', @update_breakpoints)
 
+
     update_content: =>
+        console.log('source code', @model.content)
         @el.html(@tmpl({filename: @model.filename, content: @model.content}))
         prettyPrint()
+        @content_el = @el.find('div.content').mousemove(@highlight_line)
+        @content_el.mouseout( => @cursor_el.hide())
+        @content_el.click(@toggle_breakpoint)
+        @cursor_el = @el.find('div.cursor-highlighter')
         @code_height = @el.find('pre.prettyprint').height()
-        @update_lineno()
         @update_breakpoints()
+        @update_lineno()
         $(window).trigger('resize')
+
+    highlight_line: (evt) =>
+        offset = evt.pageY - @content_el.offset().top + @content_el.scrollTop()
+        lineno = @lineno_from_offset(offset)
+        if @model.is_blank_line(lineno)
+            return
+        @cursor_lineno = lineno
+        @cursor_el.css('top', @line_offset(lineno)).show()
+
+    toggle_breakpoint: =>
+        @debugger.toggle_breakpoint(@model.filename, @cursor_lineno)
 
     update_lineno: =>
         console.log('update_lineno:', @model.lineno)
@@ -128,8 +147,10 @@ class SourceCodeView
             bp_el.css('top', @line_offset(bp.lineno))
 
     line_offset: (lineno) =>
-        line_el = @el.find("ol li:nth-child(#{lineno})")
-        return @el.scrollTop() + line_el.position().top
+        return (lineno - 1) * @line_height + @top_padding
+
+    lineno_from_offset: (offset) =>
+        return parseInt((offset - @top_padding) / @line_height) + 1
 
 class ConsoleView
     constructor: (dispatcher) ->

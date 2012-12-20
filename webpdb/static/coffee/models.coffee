@@ -42,6 +42,7 @@ class SourceCode extends BaseObject
         @filename = ''
         @lineno = ''
         @content = ''
+        @lines = []
         @caches = {}
         stack.subscribe('changed', @on_stack_change)
 
@@ -55,15 +56,19 @@ class SourceCode extends BaseObject
             @publish('lineno_changed')
 
     fetch_file_content: =>
-        if @filename in @caches
+        if @filename of @caches
             @content = @caches[@filename]
+            @lines = @content.split('\n')
             @publish('content_changed')
         else
             $.get("/source", {filename: @filename}, (content) => 
                 @caches[@filename] = content            
-                @content = content
-                @publish('content_changed')
+                @fetch_file_content()
             )
+
+    is_blank_line: (lineno) =>
+        line = @lines[lineno-1]
+        return (not line) or line.trim() == ''
 
 class Variable extends BaseObject
     constructor: (data) ->

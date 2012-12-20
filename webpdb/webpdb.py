@@ -107,12 +107,11 @@ class Debugger(Thread):
 
     def cmd_add_breakpoint(self, args):
         self.sm.set_breakpoint(args['filename'], '', args['lineno'], True, '')
-        return self.get_breakpoints()
 
     def cmd_delete_breakpoint(self, args):
         self.sm.delete_breakpoint([args['id']], False)
 
-    def get_breakpoints(self):
+    def cmd_get_breakpoints(self, args=None):
         breakpoints = self.sm.get_breakpoints()
         return dict((k, self.serialize_breakpoint(v)) for k, v in breakpoints.iteritems())
 
@@ -125,7 +124,7 @@ class Debugger(Thread):
 
     def cmd_snapshot(self, args):
         snapshot = {
-            'breakpoints' : self.get_breakpoints(),
+            'breakpoints' : self.cmd_get_breakpoints(),
             'messages' : self.messages, 
             'stack' : self.stack,
             'locals' : self.cmd_expr({'expr': 'locals()', 'expand': True}),
