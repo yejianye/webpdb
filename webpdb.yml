@@ -4,4 +4,4 @@ tabs:
   - editor: vim -S project.vim
   - ipython: ipython 
   - shell: #default shell
-  - watcher: multirun
+  - watcher: watchmedo tricks tricks.yaml

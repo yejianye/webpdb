@@ -1,22 +1,23 @@
 Today:
-- breakpoints model
-    in debugger it should have 
-    - add_breakpoint
-    - remove_breakpoint
-    - get_breakpoints(file)
-- server-side, cmd_break(cmd, args)
-- cmd_continue
-- SourceCodeView show breakpoint icon icon-map-marker
-
+- handle excpetion
+- post mortem debug
+- Support eval any expr in console
 
 TODOs:
 - stack view
     - click any stack loads the corresponding source file and point it to that line
-- Support eval any expr in console
-- Support breakpoints
 - Variable Model: Identity Map
 
 Completed:
+- Support breakpoints ...... done
+- breakpoints model
+    in debugger it should have 
+    - add_breakpoint ..... done
+    - remove_breakpoint ..... done
+    - get_breakpoints(file) ..... done
+- server-side, cmd_break(cmd, args) ..... done
+- cmd_continue ..... done
+- SourceCodeView show breakpoint icon icon-map-marker ..... done
 - UI Touch-up:
     - styles - bold, top/bottom border line etc .... done
 - Variable Tree View logic
@@ -55,8 +56,6 @@ Completed:
     - content, filename, lineno .... done
     - file content cache .... done
     - security (only allow to fetch files in current debugging context) ... done
-
-    
 
 References:
 * Rpdb2 should be a good implement reference
